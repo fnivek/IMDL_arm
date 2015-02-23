@@ -17,6 +17,7 @@
 int main(void)
 {
 
+	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
 
   usb usb_interface;
   usb_interface.init_usb();
@@ -27,7 +28,7 @@ int main(void)
   /*
   usbd_device *usbd_dev;
 
-	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
+
 
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_OTGFS);
