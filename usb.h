@@ -241,8 +241,24 @@ public:
 
 	static const struct usb_interface_descriptor comm_iface_[];
 
-/* Singelton definitions don't work
+
 private:
+	static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
+	{
+		(void)wValue;
+
+		usbd_ep_setup(usbd_dev, 0x01, USB_ENDPOINT_ATTR_BULK, 64,
+				cdcacm_data_rx_cb);
+		usbd_ep_setup(usbd_dev, 0x82, USB_ENDPOINT_ATTR_BULK, 64, NULL);
+		usbd_ep_setup(usbd_dev, 0x83, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
+
+		usbd_register_control_callback(
+					usbd_dev,
+					USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
+					USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
+					cdcacm_control_request);
+	}
+/* Singelton definitions don't work
 	usb() :
 		usb_device_(0)
 	{
@@ -300,7 +316,7 @@ public:
 								usb_control_buffer_, sizeof(usb_control_buffer_));	// Control buffer and size
 
 		// Set the reconfiguration callback function
-		usbd_register_set_config_callback(usb_device_, cdcacm_set_config);
+		usbd_register_set_config_callback(usb_device_, usb::cdcacm_set_config);
 
 	}
 
