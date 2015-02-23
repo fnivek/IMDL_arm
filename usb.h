@@ -206,7 +206,7 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 /* Class for handling the USB device
  * 			//TODO: Turn into a singelton
  * 					// In the mean time use the class appropriately! only one instance!
- *
+ */
 class usb
 {
 private:
@@ -232,7 +232,7 @@ public:
 	 * This notification endpoint isn't implemented. According to CDC spec its
 	 * optional, but its absence causes a NULL pointer dereference in Linux
 	 * cdc_acm driver.
-	 *
+	 */
 	static const struct usb_endpoint_descriptor comm_endp_[];
 
 	static const struct usb_endpoint_descriptor data_endp_[];
@@ -257,7 +257,7 @@ private:
 	{
 		delete usb_device_;
 		usb_device_ = 0;
-	}*
+	}*/
 
 public:
 	// Constructor
@@ -278,17 +278,19 @@ public:
 	{
 		static usb instance;
 		return &instance;
-	}*
+	}*/
 
 	void init_usb()
 	{
 		// Initilize the GPIO and clocks
+		rcc_periph_clock_enable(RCC_GPIOA);
+		rcc_periph_clock_enable(RCC_OTGFS);
+
 		gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,			// Set USB GPIO in Alternate function mode (AF)
 		  GPIO9 | GPIO11 | GPIO12);
 		gpio_set_af(GPIOA, GPIO_AF10, GPIO9 | GPIO11 | GPIO12);			// Set alternate function to USB mode
 
-		rcc_periph_clock_enable(RCC_GPIOA);
-		rcc_periph_clock_enable(RCC_OTGFS);
+
 
 		// Initilze the device with the
 		usb_device_ = usbd_init(&otgfs_usb_driver, 	// on the go fs mode
@@ -299,6 +301,7 @@ public:
 
 		// Set the reconfiguration callback function
 		usbd_register_set_config_callback(usb_device_, cdcacm_set_config);
+
 	}
 
 	void poll()
@@ -316,7 +319,7 @@ const char* usb::usb_strings_[] = {
  * This notification endpoint isn't implemented. According to CDC spec its
  * optional, but its absence causes a NULL pointer dereference in Linux
  * cdc_acm driver.
- *
+ */
 const struct usb_endpoint_descriptor usb::comm_endp_[] = {{
   .bLength = USB_DT_ENDPOINT_SIZE,
   .bDescriptorType = USB_DT_ENDPOINT,
@@ -445,6 +448,5 @@ const struct usb_device_descriptor usb::device_ = {
 		  .iSerialNumber = 3,
 		  .bNumConfigurations = 1,
 		};
-		*/
 
 #endif

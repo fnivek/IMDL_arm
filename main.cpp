@@ -18,12 +18,13 @@ int main(void)
 {
 
 
-  //usb usb_interface;
-  //usb_interface.init_usb();
+  usb usb_interface;
+  usb_interface.init_usb();
   const char * usb_strings[] = {"KipCDroid", "HardwareInterface"};
   /* Buffer to be used for control requests. */
   uint8_t usbd_control_buffer[128];
 
+  /*
   usbd_device *usbd_dev;
 
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
@@ -41,10 +42,11 @@ int main(void)
 
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 
+*/
   int i;
   while (1) {
-	  //usb_interface.poll();
-	  usbd_poll(usbd_dev);
+	  usb_interface.poll();
+	  //usbd_poll(usbd_dev);
 
     /*gpio_toggle(GPIOD, GPIO12);
     for(i = 0; i < 0xFF; i++)
