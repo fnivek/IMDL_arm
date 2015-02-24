@@ -214,9 +214,16 @@ usb::usb() :
 // Destructor
 usb::~usb()
 {
-	//delete usb_device_; Something is off here...
+	delete usb_device_; //Something is off here...
 	usb_device_ = 0;
 }
+
+// Get the only instance of usb
+usb* usb::get_instance()
+{
+	static usb instance;
+	return &instance;
+}//
 
 
 void usb::init_usb()

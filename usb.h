@@ -55,36 +55,24 @@ private:
 
 
 
-/* Singelton definitions don't work
-	usb() :
-		usb_device_(0)
-	{
-
-	}
-
-	// Do not implement!
-	usb(usb const&){};
-	void operator=(usb const&){};
-
-	~usb()
-	{
-		delete usb_device_;
-		usb_device_ = 0;
-	}*/
-
-public:
-	// Constructor
+// Singelton definitions don't work
 	usb();
 
-	// Destructor
-	~usb();
+	// Do not implement!
+	usb(usb const&);
+	void operator=(usb const&);
 
-	/* Get the only instance of usb
-	static usb* get_instance()
-	{
-		static usb instance;
-		return &instance;
-	}*/
+	~usb();
+	
+public:
+	// Constructor
+	//usb();
+
+	// Destructor
+	//~usb();
+
+	// Get the only instance of usb
+	static usb* get_instance();
 
 	void init_usb();
 
