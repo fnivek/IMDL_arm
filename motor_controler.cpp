@@ -1,73 +1,110 @@
 #include "motor_controler.h"
 
-motor_controler::motor_controler(uint32_t timer)
+/*
+ *		Motor controller constructor
+ *			timer ->		The timer to use for pwm gen
+ *			gpio_port ->	The gpio_port that the pins are on
+ *			pin_in1 ->		Pin specifier for in1
+ *			pin_in2 ->		Pin specifier for in2
+ *			pin_pwm ->		pin specifier for pwm signal
+ */
+motor_controler::motor_controler(pin m1_in1, pin m1_in2, pin m1_pwm,
+		pin m2_in1, pin m2_in2, pin m2_pwm)
 {
-// Enable peripherials
-	// timer
-	switch(timer)
-	{
+	// Initilize member vars
+	pins_[M1_IN1] = m1_in1;
+	pins_[M1_IN2] = m1_in2;
+	pins_[M1_PWM] = m1_pwm;
 
-	case TIM2:
-		rcc_periph_clock_enable(RCC_TIM2);
-		break;
+	pins_[M2_IN1] = m2_in1;
+	pins_[M2_IN2] = m2_in2;
+	pins_[M2_PWM] = m2_pwm;
+}
 
-	case TIM3:
-		rcc_periph_clock_enable(RCC_TIM3);
-		break;
-		
-	case TIM4:
-		rcc_periph_clock_enable(RCC_TIM4);
-		break;
-		
-	case TIM5:
-		rcc_periph_clock_enable(RCC_TIM5);
-		break;
-		
-	case TIM6:
-		rcc_periph_clock_enable(RCC_TIM6);
-		break;
-		
-	case TIM7:
-		rcc_periph_clock_enable(RCC_TIM7);
-		break;
-		
-	case TIM12:
-		rcc_periph_clock_enable(RCC_TIM12);
-		break;
-		
-	case TIM13:
-		rcc_periph_clock_enable(RCC_TIM13);
-		break;
-		
-	case TIM14:
-		rcc_periph_clock_enable(RCC_TIM14);
-		break;
-	}
+void motor_controler::init(void)
+{
+	// Enable peripherials
+	// Timer
+	rcc_periph_clock_enable(RCC_TIM1);
 
 	// GPIO
+	for(int i = 0; i < NUMBER_OF_PINS; ++i)
+	{
+		switch(pins_[i].port)
+		{
+		case GPIOA:
+			rcc_periph_clock_enable(RCC_GPIOA);
+			break;
+
+		case GPIOB:
+			rcc_periph_clock_enable(RCC_GPIOB);
+			break;
+			
+		case GPIOC:
+			rcc_periph_clock_enable(RCC_GPIOC);
+			break;
+			
+		case GPIOD:
+			rcc_periph_clock_enable(RCC_GPIOD);
+			break;
+			
+		case GPIOE:
+			rcc_periph_clock_enable(RCC_GPIOE);
+			break;
+			
+		case GPIOF:
+			rcc_periph_clock_enable(RCC_GPIOF);
+			break;
+
+		default:
+			// TODO: throw error
+			break;
+		}
+
+		// Step 1 set output options (push pull) output, no pull up or pull down
+		gpio_set_output_options(pins_[i].port, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, pins_[i].number);
+
+		// PWM signals must be set up for pwm output otherwise set the pin to be an output
+		if(i == M1_PWM || i == M2_PWM)
+		{
+			// Set to timer one output
+			gpio_mode_setup(pins_[i].port, GPIO_MODE_AF, GPIO_PUPD_NONE, pins_[i].number);
+			gpio_set_af(pins_[i].port, GPIO_AF1, pins_[i].number);
+		}
+		else
+		{
+			gpio_mode_setup(pins_[i].port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, pins_[i].number);
+		}
+	}
+	
 
 
 // Setup timer
 	// Step 1 reset peripherial:
-	timer_reset(timer);
+	timer_reset(TIM1);
 
 	// Step 2 set mode to 
-	timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1,
+	timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1,
                TIM_CR1_DIR_UP);
 
-	// Step 3 set output compare to PWM
-	timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM2);
+	// Step 3 set output compare to PWM for both channels
+	timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM1);
+	timer_set_oc_mode(TIM1, TIM_OC2, TIM_OCM_PWM1);
 
-	// Step 4 enable output compare
-	timer_enable_oc_output(timer, TIM_OC1);
+	// Step 4 enable output compare for both channels
+	timer_enable_oc_output(TIM1, TIM_OC1);
+	timer_enable_oc_output(TIM1, TIM_OC2);
 
 	// Step 5 set the compare value
-	timer_set_oc_value(timer, TIM_OC1, 200);
+	timer_set_oc_value(TIM1, TIM_OC1, 200);
+	timer_set_oc_value(TIM1, TIM_OC2, 200);
 
 	// Step 6 set the period
-	timer_set_period(timer, 1000);
+	timer_set_period(TIM1, 1000);
 
-	// Step 7 enable the timer
-	timer_enable_counter(timer);
+	//Step 7 enable break
+	timer_enable_break_main_output(TIM1);
 
+	// Step 8 enable the timer
+	timer_enable_counter(TIM1);
 }

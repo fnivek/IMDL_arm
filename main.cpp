@@ -14,6 +14,7 @@
 // User defined includes
 #include "usb.h"
 #include "motor_controler.h"
+ #include "helpers.h"
 
 int main(void)
 {
@@ -38,9 +39,15 @@ int main(void)
 	usb usb_interface;
 	usb_interface.init_usb();
 
-	// Initilize motor controllers
-	motor_controler left_motor(TIM2);
-	motor_controler right_motor(TIM3);
+	// Initilize motor controller
+	pin m1_in1 = {GPIOA, GPIO0};
+	pin m1_in2 = {GPIOA, GPIO1};
+	pin m1_pwm = {GPIOA, GPIO2};
+	pin m2_in1 = {GPIOA, GPIO3};
+	pin m2_in2 = {GPIOA, GPIO4};
+	pin m2_pwm = {GPIOA, GPIO5};
+	motor_controler motor(m1_in1, m1_in2, m1_pwm,
+						  m2_in1, m2_in2, m2_pwm);
 
 	// Blink LEDs to let us know everythings okay
 	rcc_periph_clock_enable(RCC_GPIOD);
