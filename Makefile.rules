@@ -32,7 +32,8 @@ PREFIX		?= arm-none-eabi
 
 CC		:= $(PREFIX)-gcc
 CXX		:= $(PREFIX)-g++
-LD		:= $(PREFIX)-gcc
+#LD		:= $(PREFIX)-gcc
+LD		:= $(PREFIX)-g++
 AR		:= $(PREFIX)-ar
 AS		:= $(PREFIX)-as
 OBJCOPY		:= $(PREFIX)-objcopy
@@ -83,13 +84,20 @@ CFLAGS		+= -Wextra -Wshadow -Wimplicit-function-declaration
 CFLAGS		+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
 CFLAGS		+= -fno-common -ffunction-sections -fdata-sections
 
+# C flags MIL has that I don't except includes
+CFLAGS 		+= -Wall -MD -DSTM32f4 -Wsign-conversion -Wsign-compare 
+
 ###############################################################################
 # C++ flags
 
 CXXFLAGS	+= -Os -g
 CXXFLAGS	+= -Wextra -Wshadow -Wredundant-decls  -Weffc++
 CXXFLAGS	+= -fno-common -ffunction-sections -fdata-sections
-CXXFLAGS	+= -lsupc++
+#CXXFLAGS	+= -lsupc++ -fexceptions
+#CXXFLAGS	+= -libstdc++
+
+# C++ flags that MIL has that I don't except includes
+CXXFLAGS	+= -Wall -MD -DSTM32f4 -Wsign-conversion -Wsign-compare -std=c++11
 
 ###############################################################################
 # C & C++ preprocessor common flags
@@ -100,21 +108,37 @@ CPPFLAGS	+= -I$(INCLUDE_DIR) $(DEFS)
 
 ###############################################################################
 # Linker flags
+#arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fno-move-loop-invariants -Wall -Wextra  -g3 -T mem.ld -T libs.ld -T sections.ld -nostartfiles -Xlinker --gc-sections -L"../ldscripts" -Wl,-Map,"HowToOOPs.map" --specs=nano.specs -o "HowToOOPs.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+
+#--static -Wl,-start -lc -lnosys -L$(TOOLCHAIN_DIR)/lib \
+#			 -L$(TOOLCHAIN_DIR)/lib/stm32/f3 \
+#		   -T$(LDSCRIPT) -nostartfiles -Wl,--gc-sections \
+#		   -mthumb -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16
+
+#arm-none-eabi-gcc --static -nostartfiles -L/home/fnivek/arm_libs/libopencm3/lib -Tstm32f4-discovery.ld -Wl,-Map=main.map -Wl,--gc-sections -lc -lnosys -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 usb.o main.o -lopencm3_stm32f4 -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group -o main.elf
 
 LDFLAGS		+= --static -nostartfiles
 LDFLAGS		+= -L$(LIB_DIR)
 LDFLAGS		+= -T$(LDSCRIPT)
 LDFLAGS		+= -Wl,-Map=$(*).map
 LDFLAGS		+= -Wl,--gc-sections
+#LDFLAGS		+= -L$(TOOLCHAIN_DIR)/lib
+
+# Linker flags that MIL has that I don't except includes
+LDFLAGS 	+= -lc -lnosys
+
 ifeq ($(V),99)
 LDFLAGS		+= -Wl,--print-gc-sections
+LDFLAGS		+= -Wl,-verbose
 endif
 
 ###############################################################################
 # Used libraries
 
 LDLIBS		+= -l$(LIBNAME)
-LDLIBS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
+#LDLIBS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
+#LDLIBS		+= -llibstdc++
+LDLIBS 		+= -Wl,-start -lc -lnosys
 
 ###############################################################################
 ###############################################################################
@@ -157,6 +181,7 @@ flash: $(BINARY).flash
 %.elf %.map: $(OBJS) $(LDSCRIPT) $(LIB_DIR)/lib$(LIBNAME).a
 	@#printf "  LD      $(*).elf\n"
 	$(Q)$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $(*).elf
+#	$(Q)$(LD) -o $(*).elf $(OBJS) -lopencm3_stm32f3 $(LDFLAGS)
 
 %.o: %.c
 	@#printf "  CC      $(*).c\n"
