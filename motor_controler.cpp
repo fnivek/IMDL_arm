@@ -12,6 +12,9 @@ motor_controler::motor_controler(pin m1_in1, pin m1_in2, pin m1_pwm,
 		pin m2_in1, pin m2_in2, pin m2_pwm)
 {
 	// Initilize member vars
+	// TODO eroror checking
+	//		TIM1_CH1 exist only on ~PA7, PA8, ~PB13, ~PE8, PE9
+	//		TIM1_CH2 exist only on PA9, ~PB0, ~PB14, ~PE10, PE11
 	pins_[M1_IN1] = m1_in1;
 	pins_[M1_IN2] = m1_in2;
 	pins_[M1_PWM] = m1_pwm;
@@ -83,21 +86,21 @@ void motor_controler::init(void)
 	// Step 1 reset peripherial:
 	timer_reset(TIM1);
 
-	// Step 2 set mode to 
+	// Step 2 set mode to // is there a mode per chn???
 	timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1,
                TIM_CR1_DIR_UP);
 
 	// Step 3 set output compare to PWM for both channels
 	timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM1);
-	timer_set_oc_mode(TIM1, TIM_OC2, TIM_OCM_PWM1);
+	timer_set_oc_mode(TIM1, TIM_OC3, TIM_OCM_PWM1);
 
 	// Step 4 enable output compare for both channels
 	timer_enable_oc_output(TIM1, TIM_OC1);
-	timer_enable_oc_output(TIM1, TIM_OC2);
+	timer_enable_oc_output(TIM1, TIM_OC3);
 
 	// Step 5 set the compare value
 	timer_set_oc_value(TIM1, TIM_OC1, 200);
-	timer_set_oc_value(TIM1, TIM_OC2, 200);
+	timer_set_oc_value(TIM1, TIM_OC3, 200);
 
 	// Step 6 set the period
 	timer_set_period(TIM1, 1000);
@@ -107,4 +110,33 @@ void motor_controler::init(void)
 
 	// Step 8 enable the timer
 	timer_enable_counter(TIM1);
+}
+
+void motor_controler::set_m1_dir(direction dir)
+{
+	switch(dir)
+	{
+	case FORWARD:
+		gpio_set(pins_[M1_IN1].port, pins_[M1_IN1].number);
+		gpio_clear(pins_[M1_IN2].port, pins_[M1_IN2].number);
+		break;
+
+	case REVERSE:
+		gpio_clear(pins_[M1_IN1].port, pins_[M1_IN1].number);
+		gpio_set(pins_[M1_IN2].port, pins_[M1_IN2].number);
+		break;
+
+	case FREE_SPIN_H:
+		gpio_set(pins_[M1_IN1].port, pins_[M1_IN1].number);
+		gpio_set(pins_[M1_IN2].port, pins_[M1_IN2].number);
+		break;
+
+	case FREE_SPIN_L:
+	default:
+		gpio_clear(pins_[M1_IN1].port, pins_[M1_IN1].number);
+		gpio_clear(pins_[M1_IN2].port, pins_[M1_IN2].number);
+		break;
+
+	
+	}
 }

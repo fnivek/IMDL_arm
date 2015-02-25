@@ -24,7 +24,7 @@
 class motor_controler
 {
 private:
-	enum PIN_NUMBER
+	enum pin_number
 	{
 		M1_IN1,
 		M1_IN2,
@@ -35,6 +35,15 @@ private:
 		NUMBER_OF_PINS
 	};
 
+public:
+	enum direction
+	{
+		FREE_SPIN_H,
+		FREE_SPIN_L,
+		FORWARD,
+		REVERSE
+	};
+
 private:
 	pin pins_[NUMBER_OF_PINS];
 
@@ -42,7 +51,9 @@ public:
 	motor_controler(pin m1_in1, pin m1_in2, pin m1_pwm,
 					pin m2_in1, pin m2_in2, pin m2_pwm);
 
-	void init(void);
+	void init();
+
+	void set_m1_dir(direction dir);
 
 
 };

@@ -36,18 +36,19 @@ int main(void)
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
 
 	// Initilize USB interface
-	usb usb_interface;
+	usb usb_interface;			// Note uses PA 9 11 and 12
 	usb_interface.init_usb();
 
 	// Initilize motor controller
 	pin m1_in1 = {GPIOA, GPIO0};
 	pin m1_in2 = {GPIOA, GPIO1};
-	pin m1_pwm = {GPIOA, GPIO2};
+	pin m1_pwm = {GPIOA, GPIO10};
 	pin m2_in1 = {GPIOA, GPIO3};
 	pin m2_in2 = {GPIOA, GPIO4};
-	pin m2_pwm = {GPIOA, GPIO5};
-	motor_controler motor(m1_in1, m1_in2, m1_pwm,
-						  m2_in1, m2_in2, m2_pwm);
+	pin m2_pwm = {GPIOA, GPIO8};
+	motor_controler motors(m1_in1, m1_in2, m1_pwm,
+						   m2_in1, m2_in2, m2_pwm);
+	motors.init();
 
 	// Blink LEDs to let us know everythings okay
 	rcc_periph_clock_enable(RCC_GPIOD);
@@ -57,6 +58,8 @@ int main(void)
 	int i;
 	while (1) {
 		usb_interface.poll();
+
+		motors.set_m1_dir(motor_controler::FORWARD);
 
 		gpio_toggle(GPIOD, GPIO12);
 		for(i = 0; i < 0xFF; i++)
@@ -68,6 +71,9 @@ int main(void)
 		{
 		  __asm__("nop");
 		}
+
+		motors.set_m1_dir(motor_controler::REVERSE);
+
 		gpio_toggle(GPIOD, GPIO14);
 		for(i = 0; i < 0xFF; i++)
 		{
