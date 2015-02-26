@@ -77,10 +77,34 @@ int main(void)
 	rcc_periph_clock_enable(RCC_GPIOD);
 	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
 
+	float test_pwm = 0;
+	motor_controler::direction current_dir = motor_controler::FORWARD;
 
 	int i;
 	while (1) {
 		usb_interface.poll();
+
+		test_pwm += 1e-5;
+		if(test_pwm > 1.0)
+		{
+			test_pwm = 0;
+
+			if(current_dir == motor_controler::FORWARD)
+			{
+				current_dir = motor_controler::REVERSE;
+			}
+			else
+			{
+				current_dir = motor_controler::FORWARD;
+			}
+
+			motors.set_m1_dir(current_dir);
+			motors.set_m2_dir(current_dir);
+
+		}
+
+		motors.set_m1_duty(test_pwm);
+		motors.set_m2_duty(1.0 - test_pwm);
 
 		//motors.set_m1_dir(motor_controler::FORWARD);
 

@@ -140,3 +140,63 @@ void motor_controler::set_m1_dir(direction dir)
 	
 	}
 }
+
+void motor_controler::set_m2_dir(direction dir)
+{
+	switch(dir)
+	{
+	case FORWARD:
+		gpio_set(pins_[M2_IN1].port, pins_[M2_IN1].number);
+		gpio_clear(pins_[M2_IN2].port, pins_[M2_IN2].number);
+		break;
+
+	case REVERSE:
+		gpio_clear(pins_[M2_IN1].port, pins_[M2_IN1].number);
+		gpio_set(pins_[M2_IN2].port, pins_[M2_IN2].number);
+		break;
+
+	case FREE_SPIN_H:
+		gpio_set(pins_[M2_IN1].port, pins_[M2_IN1].number);
+		gpio_set(pins_[M2_IN2].port, pins_[M2_IN2].number);
+		break;
+
+	case FREE_SPIN_L:
+	default:
+		gpio_clear(pins_[M2_IN1].port, pins_[M2_IN1].number);
+		gpio_clear(pins_[M2_IN2].port, pins_[M2_IN2].number);
+		break;
+
+	
+	}
+}
+void motor_controler::set_m1_duty(float percent)
+{
+	if(percent >=1.0f)
+	{
+		timer_set_oc_value(TIM1, TIM_OC1, pwm_ticks);
+	}
+	else if(percent <= 0.0f)
+	{
+		timer_set_oc_value(TIM1, TIM_OC1, 0);
+	}
+	else
+	{
+		timer_set_oc_value(TIM1, TIM_OC1, (uint32_t)((float)pwm_ticks * percent));
+	}
+}
+
+void motor_controler::set_m2_duty(float percent)
+{
+	if(percent >=1.0f)
+	{
+		timer_set_oc_value(TIM1, TIM_OC3, pwm_ticks);
+	}
+	else if(percent <= 0.0f)
+	{
+		timer_set_oc_value(TIM1, TIM_OC3, 0);
+	}
+	else
+	{
+		timer_set_oc_value(TIM1, TIM_OC3, (uint32_t)((float)pwm_ticks * percent));
+	}
+}
