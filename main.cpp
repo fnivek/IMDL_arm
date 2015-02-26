@@ -27,6 +27,13 @@
  *		
  */
 
+/*
+ *	Timer			who				why					config
+ * --------------------------------------------------------------------
+ * TIM1			   M1, M2		PWM generation		20KHz, DIV 1, OC
+ * TIM2				Ping 		delays				
+ */
+
 // Library includes
 //#include <stdlib.h>
 #include <libopencm3/stm32/rcc.h>
@@ -40,6 +47,8 @@
 #include "motor_controler.h"
 #include "helpers.h"
 #include "ping.h"
+
+ping pingy({GPIOC, GPIO15});
 
 int main(void)
 {
@@ -77,8 +86,7 @@ int main(void)
 	motors.set_m1_dir(motor_controler::FORWARD);
 
 	// Initilize Ping ultrasonic sensor
-	pin ping_sig = {GPIOC, GPIO15};
-	ping pingy(ping_sig);
+	pingy.init();
 
 	// Blink LEDs to let us know everythings okay
 	rcc_periph_clock_enable(RCC_GPIOD);
@@ -115,6 +123,7 @@ int main(void)
 
 		//motors.set_m1_dir(motor_controler::FORWARD);
 
+		/*
 		gpio_toggle(GPIOD, GPIO12);
 		for(i = 0; i < 0xFF; i++)
 		{
@@ -138,5 +147,21 @@ int main(void)
 		{
 		  __asm__("nop");
 		}
+		*/
+
+		volatile float distance = pingy.get_distance();
+		if(distance <= 70)
+		{
+			gpio_set(GPIOD, GPIO12 | GPIO13 | GPIO14 | GPIO15);
+		}
+		else
+		{
+			gpio_clear(GPIOD, GPIO12 | GPIO13 | GPIO14 | GPIO15);
+		}
 	}
+}
+
+void tim2_isr(void)
+{
+	pingy.timer_isr();
 }
