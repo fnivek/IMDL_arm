@@ -22,6 +22,8 @@
  *		PA14				?				Programer				Programing don't mess with this!
  *
  *		PD[12..15]			-->				Status LEDs				Show the status of the robot
+ *
+ *		PC15				<-->			Ping Signal				EXTI15 for PING)))				
  *		
  */
 
@@ -36,7 +38,8 @@
 // User defined includes
 #include "usb.h"
 #include "motor_controler.h"
- #include "helpers.h"
+#include "helpers.h"
+#include "ping.h"
 
 int main(void)
 {
@@ -72,6 +75,10 @@ int main(void)
 						   m2_in1, m2_in2, m2_pwm);
 	motors.init();
 	motors.set_m1_dir(motor_controler::FORWARD);
+
+	// Initilize Ping ultrasonic sensor
+	pin ping_sig = {GPIOC, GPIO15};
+	ping pingy(ping_sig);
 
 	// Blink LEDs to let us know everythings okay
 	rcc_periph_clock_enable(RCC_GPIOD);
