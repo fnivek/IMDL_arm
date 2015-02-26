@@ -99,11 +99,11 @@ void motor_controler::init(void)
 	timer_enable_oc_output(TIM1, TIM_OC3);
 
 	// Step 5 set the compare value
-	timer_set_oc_value(TIM1, TIM_OC1, 200);
-	timer_set_oc_value(TIM1, TIM_OC3, 200);
+	timer_set_oc_value(TIM1, TIM_OC1, 800);
+	timer_set_oc_value(TIM1, TIM_OC3, 2000);
 
 	// Step 6 set the period
-	timer_set_period(TIM1, 1000);
+	timer_set_period(TIM1, 3000);
 
 	//Step 7 enable break
 	timer_enable_break_main_output(TIM1);

@@ -5,18 +5,24 @@
  *	Pin out
  *		Pin 			  Direction			Conection					Use
  * -----------------------------------------------------------------------------
- *		PA13				-->				Motor 1 in 1 			Direction control
+ *		PC10				-->				Motor 1 in 1 			Direction control
  *		PA15				-->				Motor 1 in 2 			Direction control
  *		PA8					-->				Motor 1 PWM				Motor speed control (PWM)
  *		PC11				-->				Motor 2 in 1 			Direction control
- *		PA14				-->				Motor 2 in 2			Direction control
+ *		PC12				-->				Motor 2 in 2			Direction control
  *		PA10				-->				Motor 2 PWM				Motor speed control (PWM)
  *
  *		PA11				<-->			USB DM					USB data -
  *		PA12				<-->			USB DP					USB data +
  *		PA9					 pwr 			VBUS					USB VBUS
  *
- *							<-->			ping))) Signal			distance measurment		
+ *		PC?					<-->			ping))) Signal			distance measurment
+ *
+ *		PA13				?				Programer				Programing don't mess with this!
+ *		PA14				?				Programer				Programing don't mess with this!
+ *
+ *		PD[12..15]			-->				Status LEDs				Show the status of the robot
+ *		
  */
 
 // Library includes
@@ -56,11 +62,11 @@ int main(void)
 	usb_interface.init_usb();
 
 	// Initilize motor controller
-	pin m1_in1 = {GPIOA, GPIO13};
+	pin m1_in1 = {GPIOC, GPIO10};
 	pin m1_in2 = {GPIOA, GPIO15};
 	pin m1_pwm = {GPIOA, GPIO8};
 	pin m2_in1 = {GPIOC, GPIO11};
-	pin m2_in2 = {GPIOA, GPIO14};
+	pin m2_in2 = {GPIOC, GPIO12};
 	pin m2_pwm = {GPIOA, GPIO10};
 	motor_controler motors(m1_in1, m1_in2, m1_pwm,
 						   m2_in1, m2_in2, m2_pwm);
