@@ -17,6 +17,14 @@
 class ping
 {
 private:
+	// Enumerator to keep track of how many ticks to wait
+	enum ticks
+	{
+		US_5 =			5,
+		US_200 =		200,
+	};
+
+private:
 	pin sig_;
 
 private:

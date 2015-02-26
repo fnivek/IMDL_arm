@@ -86,7 +86,7 @@ void motor_controler::init(void)
 	// Step 1 reset peripherial:
 	timer_reset(TIM1);
 
-	// Step 2 set mode to // is there a mode per chn???
+	// Step 2 set mode
 	timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1,
                TIM_CR1_DIR_UP);
 
@@ -99,11 +99,11 @@ void motor_controler::init(void)
 	timer_enable_oc_output(TIM1, TIM_OC3);
 
 	// Step 5 set the compare value
-	timer_set_oc_value(TIM1, TIM_OC1, 800);
-	timer_set_oc_value(TIM1, TIM_OC3, 2000);
+	timer_set_oc_value(TIM1, TIM_OC1, 0);
+	timer_set_oc_value(TIM1, TIM_OC3, 0);
 
 	// Step 6 set the period
-	timer_set_period(TIM1, 3000);
+	timer_set_period(TIM1, pwm_ticks);
 
 	//Step 7 enable break
 	timer_enable_break_main_output(TIM1);
