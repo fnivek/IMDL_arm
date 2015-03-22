@@ -155,7 +155,9 @@ void usb::cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
 
 	if (len) {
+		gpio_set(GPIOD, GPIO13);	// Packet Recieved
 		while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0);
+		gpio_set(GPIOD, GPIO14);	// Packet Writen
 	}
 }
 

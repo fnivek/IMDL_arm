@@ -35,7 +35,6 @@
  */
 
 // Library includes
-//#include <stdlib.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/usb/usbd.h>
@@ -49,6 +48,7 @@
 #include "motor_controler.h"
 #include "helpers.h"
 #include "ping.h"
+#include "board.h"
 
  #define MAX_SPEED 0.70
 
@@ -97,6 +97,9 @@ motor_controler motors(m1_in1, m1_in2, m1_pwm,
 
 int main(void)
 {
+	board bd;
+	bd.init();
+
 	systick_setup();
 	/* Initilize the clock to: 
 		.pllm = 25,
@@ -136,7 +139,6 @@ int main(void)
 	while (1) {
 		// TODO: move to an interrupt
 		usb_interface.poll();
-		gpio_set(GPIOD, GPIO13);
 
 		//simple_obstical_avoidance();
 	}
