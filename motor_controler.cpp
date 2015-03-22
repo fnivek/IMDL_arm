@@ -146,24 +146,24 @@ void motor_controler::set_m2_dir(direction dir)
 	switch(dir)
 	{
 	case FORWARD:
-		gpio_set(pins_[M2_IN1].port, pins_[M2_IN1].number);
-		gpio_clear(pins_[M2_IN2].port, pins_[M2_IN2].number);
+		gpio_set(pins_[M2_IN2].port, pins_[M2_IN2].number);
+		gpio_clear(pins_[M2_IN1].port, pins_[M2_IN1].number);
 		break;
 
 	case REVERSE:
-		gpio_clear(pins_[M2_IN1].port, pins_[M2_IN1].number);
-		gpio_set(pins_[M2_IN2].port, pins_[M2_IN2].number);
+		gpio_clear(pins_[M2_IN2].port, pins_[M2_IN2].number);
+		gpio_set(pins_[M2_IN1].port, pins_[M2_IN1].number);
 		break;
 
 	case FREE_SPIN_H:
-		gpio_set(pins_[M2_IN1].port, pins_[M2_IN1].number);
 		gpio_set(pins_[M2_IN2].port, pins_[M2_IN2].number);
+		gpio_set(pins_[M2_IN1].port, pins_[M2_IN1].number);
 		break;
 
 	case FREE_SPIN_L:
 	default:
-		gpio_clear(pins_[M2_IN1].port, pins_[M2_IN1].number);
 		gpio_clear(pins_[M2_IN2].port, pins_[M2_IN2].number);
+		gpio_clear(pins_[M2_IN1].port, pins_[M2_IN1].number);
 		break;
 
 	

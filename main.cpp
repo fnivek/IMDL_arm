@@ -41,6 +41,8 @@
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/cm3/scb.h>
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/systick.h>
 
 // User defined includes
 #include "usb.h"
@@ -48,11 +50,54 @@
 #include "helpers.h"
 #include "ping.h"
 
+ #define MAX_SPEED 0.70
+
+/* monotonically increasing number of milliseconds from reset
+ * overflows every 49 days if you're wondering
+ */
+volatile uint32_t system_millis = 0;
+
+/* Called when systick fires */
+void sys_tick_handler(void)
+{
+	system_millis++;
+}
+
+/* sleep for delay milliseconds */
+static void msleep(uint32_t delay)
+{
+	uint32_t wake = system_millis + delay;
+	while (wake > system_millis);
+}
+
+/* Set up a timer to create 1mS ticks. */
+static void systick_setup(void)
+{
+	/* clock rate / 1000 to get 1mS interrupt rate */
+	systick_set_reload(120000);
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_counter_enable();
+	/* this done last */
+	systick_interrupt_enable();
+}
+
+void simple_obstical_avoidance();
+
+
 ping pingy({GPIOC, GPIO15});
+// Initilize motor controller
+pin m1_in1 = {GPIOC, GPIO10};
+pin m1_in2 = {GPIOA, GPIO15};
+pin m1_pwm = {GPIOA, GPIO8};
+pin m2_in1 = {GPIOC, GPIO11};
+pin m2_in2 = {GPIOC, GPIO12};
+pin m2_pwm = {GPIOA, GPIO10};
+motor_controler motors(m1_in1, m1_in2, m1_pwm,
+					   m2_in1, m2_in2, m2_pwm);
 
 int main(void)
 {
-
+	systick_setup();
 	/* Initilize the clock to: 
 		.pllm = 25,
 		.plln = 240,
@@ -72,96 +117,105 @@ int main(void)
 	// Initilize USB interface
 	usb usb_interface;			// Note uses PA 9 11 and 12
 	usb_interface.init_usb();
-
-	// Initilize motor controller
-	pin m1_in1 = {GPIOC, GPIO10};
-	pin m1_in2 = {GPIOA, GPIO15};
-	pin m1_pwm = {GPIOA, GPIO8};
-	pin m2_in1 = {GPIOC, GPIO11};
-	pin m2_in2 = {GPIOC, GPIO12};
-	pin m2_pwm = {GPIOA, GPIO10};
-	motor_controler motors(m1_in1, m1_in2, m1_pwm,
-						   m2_in1, m2_in2, m2_pwm);
+	
 	motors.init();
-	motors.set_m1_dir(motor_controler::FORWARD);
+	motor_controler::direction current_dir = motor_controler::FORWARD;
+	motors.set_m1_dir(current_dir);
+	motors.set_m2_dir(current_dir);
 
 	// Initilize Ping ultrasonic sensor
-	pingy.init();
+	//pingy.init();
 
 	// Blink LEDs to let us know everythings okay
 	rcc_periph_clock_enable(RCC_GPIOD);
 	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
 
-	float test_pwm = 0;
-	motor_controler::direction current_dir = motor_controler::FORWARD;
+
 
 	int i;
 	while (1) {
+		// TODO: move to an interrupt
 		usb_interface.poll();
+		gpio_set(GPIOD, GPIO13);
 
-		test_pwm += 1e-5;
-		if(test_pwm > 1.0)
-		{
-			test_pwm = 0;
-
-			if(current_dir == motor_controler::FORWARD)
-			{
-				current_dir = motor_controler::REVERSE;
-			}
-			else
-			{
-				current_dir = motor_controler::FORWARD;
-			}
-
-			motors.set_m1_dir(current_dir);
-			motors.set_m2_dir(current_dir);
-
-		}
-
-		motors.set_m1_duty(test_pwm);
-		motors.set_m2_duty(1.0 - test_pwm);
-
-		//motors.set_m1_dir(motor_controler::FORWARD);
-
-		/*
-		gpio_toggle(GPIOD, GPIO12);
-		for(i = 0; i < 0xFF; i++)
-		{
-		  __asm__("nop");
-		}
-		gpio_toggle(GPIOD, GPIO13);
-		for(i = 0; i < 0xFF; i++)
-		{
-		  __asm__("nop");
-		}
-
-		//motors.set_m1_dir(motor_controler::REVERSE);
-
-		gpio_toggle(GPIOD, GPIO14);
-		for(i = 0; i < 0xFF; i++)
-		{
-		  __asm__("nop");
-		}
-		gpio_toggle(GPIOD, GPIO15);
-		for(i = 0; i < 0xFF; i++)
-		{
-		  __asm__("nop");
-		}
-		*/
-
-		volatile float distance = pingy.get_distance();
-		if(distance <= 70)
-		{
-			gpio_set(GPIOD, GPIO12 | GPIO13 | GPIO14 | GPIO15);
-		}
-		else
-		{
-			gpio_clear(GPIOD, GPIO12 | GPIO13 | GPIO14 | GPIO15);
-		}
+		//simple_obstical_avoidance();
 	}
 }
 
 void tim2_isr(void)
 {
 	pingy.timer_isr();
+}
+
+void turn_right()
+{
+	motors.set_m2_dir(motor_controler::REVERSE);
+	motors.set_m1_dir(motor_controler::FORWARD);
+	motors.set_m1_duty(MAX_SPEED);
+	motors.set_m2_duty(MAX_SPEED);
+}
+
+void turn_left()
+{
+	motors.set_m1_dir(motor_controler::REVERSE);
+	motors.set_m2_dir(motor_controler::FORWARD);
+	motors.set_m1_duty(MAX_SPEED);
+	motors.set_m2_duty(MAX_SPEED);
+}
+
+void stop()
+{
+	motors.set_m1_dir(motor_controler::FREE_SPIN_H);
+	motors.set_m2_dir(motor_controler::FREE_SPIN_H);
+	motors.set_m1_duty(0);
+	motors.set_m2_duty(0);
+}
+
+void forward()
+{
+	motors.set_m1_dir(motor_controler::FORWARD);
+	motors.set_m2_dir(motor_controler::FORWARD);
+	motors.set_m1_duty(MAX_SPEED);
+	motors.set_m2_duty(MAX_SPEED);
+}
+
+void simple_obstical_avoidance()
+{
+	gpio_clear(GPIOD, GPIO12 |GPIO13 | GPIO14 | GPIO15);
+
+	// Go forward till we find something
+	forward();
+	while(pingy.get_distance() > 80);
+
+	gpio_set(GPIOD, GPIO12);
+
+	// Turn left
+	volatile uint32_t debug = timer_get_counter(TIM1);
+	if((debug >> 1) & 0x1)
+	{
+		turn_left();
+	}
+	else
+	{
+		turn_right();
+	}
+
+	while(pingy.get_distance() < 120);
+
+	gpio_set(GPIOD, GPIO13);
+
+	switch((timer_get_counter(TIM1) >> 1) & 0x3)
+	{
+	case 0:
+		msleep(100);
+	case 1:
+		msleep(100);
+	case 2:
+		msleep(100);
+	case 3:
+		msleep(100);
+	defualt:
+		msleep(100);
+	}
+
 }
