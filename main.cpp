@@ -52,6 +52,12 @@
 
  #define MAX_SPEED 0.70
 
+ // Debug
+ void *__dso_handle;
+ 
+int __cxa_atexit(void (*destructor) (void *), void *arg, void *dso);
+void __cxa_finalize(void *f);
+
 /* monotonically increasing number of milliseconds from reset
  * overflows every 49 days if you're wondering
  */
