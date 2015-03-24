@@ -48,7 +48,9 @@
 #include "motor_controler.h"
 #include "helpers.h"
 #include "ping.h"
-#include "board.h"
+
+ // ROS
+ #include "ros/ros.h"
 
  #define MAX_SPEED 0.70
 
@@ -103,9 +105,6 @@ motor_controler motors(m1_in1, m1_in2, m1_pwm,
 
 int main(void)
 {
-	board bd;
-	bd.init();
-
 	systick_setup();
 	/* Initilize the clock to: 
 		.pllm = 25,

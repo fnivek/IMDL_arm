@@ -108,14 +108,6 @@ CPPFLAGS	+= -I$(INCLUDE_DIR) $(DEFS)
 
 ###############################################################################
 # Linker flags
-#arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fno-move-loop-invariants -Wall -Wextra  -g3 -T mem.ld -T libs.ld -T sections.ld -nostartfiles -Xlinker --gc-sections -L"../ldscripts" -Wl,-Map,"HowToOOPs.map" --specs=nano.specs -o "HowToOOPs.elf" $(OBJS) $(USER_OBJS) $(LIBS)
-
-#--static -Wl,-start -lc -lnosys -L$(TOOLCHAIN_DIR)/lib \
-#			 -L$(TOOLCHAIN_DIR)/lib/stm32/f3 \
-#		   -T$(LDSCRIPT) -nostartfiles -Wl,--gc-sections \
-#		   -mthumb -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16
-
-#arm-none-eabi-gcc --static -nostartfiles -L/home/fnivek/arm_libs/libopencm3/lib -Tstm32f4-discovery.ld -Wl,-Map=main.map -Wl,--gc-sections -lc -lnosys -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 usb.o main.o -lopencm3_stm32f4 -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group -o main.elf
 
 LDFLAGS		+= --static -nostartfiles
 LDFLAGS		+= -L$(LIB_DIR)

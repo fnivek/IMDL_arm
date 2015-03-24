@@ -8,7 +8,7 @@ board::board()
 // initialization code necessary to use the serial port
 void board::init()
 {
-
+	// Do nothing for now
 }
 
 // read a byte from the serial port. -1 = failure
