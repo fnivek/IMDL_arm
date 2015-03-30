@@ -1,6 +1,7 @@
 #include "board.h"
 
-board::board()
+board::board():
+	usb_()
 {
 
 }
@@ -9,6 +10,7 @@ board::board()
 void board::init()
 {
 	// Do nothing for now
+	usb_.init();
 }
 
 // read a byte from the serial port. -1 = failure
@@ -20,7 +22,7 @@ int board::read()
 // write data to the connection to ROS
 void board::write(uint8_t* data, int length)
 {
-
+	usb_.write(data, length);
 }
 
 // returns milliseconds since start of program

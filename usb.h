@@ -88,7 +88,9 @@ public:
 		return &instance;
 	}*/
 
-	void init_usb();
+	void init();
+
+	void write(uint8_t* data, int length);
 
 	void poll();
 };

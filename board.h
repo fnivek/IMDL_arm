@@ -3,9 +3,13 @@
 
 //#include <stdlib.h>
 #include <libopencm3/stm32/gpio.h>
+#include "usb.h"
 
 class board
 {
+private:
+	usb usb_;
+
 public:
   board();
 

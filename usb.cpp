@@ -155,9 +155,7 @@ void usb::cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
 
 	if (len) {
-		gpio_set(GPIOD, GPIO13);	// Packet Recieved
 		while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0);
-		gpio_set(GPIOD, GPIO14);	// Packet Writen
 	}
 }
 
@@ -221,7 +219,7 @@ usb::~usb()
 }
 
 
-void usb::init_usb()
+void usb::init()
 {
 	// Initilize the GPIO and clocks
 	rcc_periph_clock_enable(RCC_GPIOA);
@@ -248,4 +246,9 @@ void usb::init_usb()
 void usb::poll()
 {
 	usbd_poll(usb_device_);
+}
+
+void usb::write(uint8_t* data, int length)
+{
+	while (usbd_ep_write_packet(usb_device_, 0x82, data, length) == 0);
 }

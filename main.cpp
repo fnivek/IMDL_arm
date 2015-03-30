@@ -121,10 +121,6 @@ int main(void)
 		.apb2_frequency = 60000000,
   	*/
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
-
-	// Initilize USB interface
-	usb usb_interface;			// Note uses PA 9 11 and 12
-	usb_interface.init_usb();
 	
 	motors.init();
 	motor_controler::direction current_dir = motor_controler::FORWARD;
@@ -138,12 +134,14 @@ int main(void)
 	rcc_periph_clock_enable(RCC_GPIOD);
 	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
 
+	ros::NodeHandle nh;
 
+	nh.initNode();
 
 	int i;
 	while (1) {
-		// TODO: move to an interrupt
-		usb_interface.poll();
+
+		nh.spinOnce();
 
 		//simple_obstical_avoidance();
 	}
