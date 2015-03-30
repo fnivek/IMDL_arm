@@ -3,8 +3,9 @@
 
 //#include <stdlib.h>
 #include <libopencm3/stm32/gpio.h>
-#include "usb.h"
 #include <libopencm3/cm3/systick.h>
+
+#include "usb.h"
 
 class board
 {
@@ -21,6 +22,8 @@ private:
 
 	/* Set up a timer to create 1mS ticks. */
 	static void systick_setup(void);
+
+	uint32_t last_time_;
 
 public:
   board();

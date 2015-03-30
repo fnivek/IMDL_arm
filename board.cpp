@@ -1,7 +1,8 @@
 #include "board.h"
 
 board::board():
-	usb_()
+	usb_(),
+	last_time_(0)
 {
 
 }
@@ -29,8 +30,11 @@ void board::init()
 
 	systick_setup();
 
-
 	usb_.init();
+
+	// Setup status LEDs
+	rcc_periph_clock_enable(RCC_GPIOD);
+	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
 }
 
 // read a byte from the serial port. -1 = failure
@@ -55,6 +59,13 @@ unsigned long board::time()
 void board::hardwareUpdate()
 {
 	usb_.poll();
+
+	// Heartbeat every second
+	if(board::system_millis - last_time_ > 1000)
+	{
+		last_time_ = board::system_millis;
+		gpio_toggle(GPIOD, GPIO12);
+	}
 }
 
 /* monotonically increasing number of milliseconds from reset

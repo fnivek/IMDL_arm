@@ -84,10 +84,6 @@ int main(void)
 	// Initilize Ping ultrasonic sensor
 	//pingy.init();
 
-	// Blink LEDs to let us know everythings okay
-	rcc_periph_clock_enable(RCC_GPIOD);
-	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
-
 	ros::NodeHandle nh;
 
 	nh.initNode();
