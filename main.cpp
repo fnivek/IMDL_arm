@@ -41,7 +41,6 @@
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/cm3/nvic.h>
-#include <libopencm3/cm3/systick.h>
 
 // User defined includes
 #include "usb.h"
@@ -60,36 +59,7 @@
 int __cxa_atexit(void (*destructor) (void *), void *arg, void *dso);
 void __cxa_finalize(void *f);
 
-/* monotonically increasing number of milliseconds from reset
- * overflows every 49 days if you're wondering
- */
-volatile uint32_t system_millis = 0;
-
-/* Called when systick fires */
-void sys_tick_handler(void)
-{
-	system_millis++;
-}
-
-/* sleep for delay milliseconds */
-static void msleep(uint32_t delay)
-{
-	uint32_t wake = system_millis + delay;
-	while (wake > system_millis);
-}
-
-/* Set up a timer to create 1mS ticks. */
-static void systick_setup(void)
-{
-	/* clock rate / 1000 to get 1mS interrupt rate */
-	systick_set_reload(120000);
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-	systick_counter_enable();
-	/* this done last */
-	systick_interrupt_enable();
-}
-
-void simple_obstical_avoidance();
+//void simple_obstical_avoidance();
 
 
 ping pingy({GPIOC, GPIO15});
@@ -105,22 +75,6 @@ motor_controler motors(m1_in1, m1_in2, m1_pwm,
 
 int main(void)
 {
-	systick_setup();
-	/* Initilize the clock to: 
-		.pllm = 25,
-		.plln = 240,
-		.pllp = 2,
-		.pllq = 5,
-		.hpre = RCC_CFGR_HPRE_DIV_NONE,
-		.ppre1 = RCC_CFGR_PPRE_DIV_4,
-		.ppre2 = RCC_CFGR_PPRE_DIV_2,
-		.power_save = 1,
-		.flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
-			FLASH_ACR_LATENCY_3WS,
-		.apb1_frequency = 30000000,
-		.apb2_frequency = 60000000,
-  	*/
-	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
 	
 	motors.init();
 	motor_controler::direction current_dir = motor_controler::FORWARD;
@@ -185,6 +139,7 @@ void forward()
 	motors.set_m2_duty(MAX_SPEED);
 }
 
+/*
 void simple_obstical_avoidance()
 {
 	gpio_clear(GPIOD, GPIO12 |GPIO13 | GPIO14 | GPIO15);
@@ -213,15 +168,16 @@ void simple_obstical_avoidance()
 	switch((timer_get_counter(TIM1) >> 1) & 0x3)
 	{
 	case 0:
-		msleep(100);
+		//msleep(100);
 	case 1:
-		msleep(100);
+		//msleep(100);
 	case 2:
-		msleep(100);
+		//msleep(100);
 	case 3:
-		msleep(100);
+		//msleep(100);
 	defualt:
-		msleep(100);
+		//msleep(100);
 	}
 
 }
+*/

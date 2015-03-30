@@ -5,4 +5,7 @@ namespace ros
 	{
 		hardware_.hardwareUpdate();
 	}
+
+	/*NodeHandle::NodeHandle() :
+		ros::NodeHandle_<board>()*/
 }

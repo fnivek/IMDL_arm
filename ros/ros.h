@@ -14,6 +14,7 @@ namespace ros
 	{
 	public:
 		void hardwareUpdate();
+		//NodeHandle::NodeHandle();
 	};
 }
 
