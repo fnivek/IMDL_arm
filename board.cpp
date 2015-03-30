@@ -48,7 +48,7 @@ void board::write(uint8_t* data, int length)
 // returns milliseconds since start of program
 unsigned long board::time()
 {
-	return 0;
+	return board::system_millis;
 }
 
 // Updates the hardware
@@ -65,7 +65,7 @@ volatile uint32_t system_millis = 0;
 /* Called when systick fires */
 void board::sys_tick_handler(void)
 {
-	system_millis++;
+	board::system_millis++;
 }
 
 /* Set up a timer to create 1mS ticks. */
