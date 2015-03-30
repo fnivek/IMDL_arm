@@ -154,6 +154,18 @@ void usb::cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	char buf[64];
 	int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
 
+	// Grab the data and throw it into a buffer until someone else needs it
+	for (int i = 0; i < len; ++i)
+	{
+		usb::in_buf_[in_buf_index_++] = buf[i];
+		if(usb::in_buf_index_ >= usb::IN_BUF_SIZE)
+		{
+			// This should never happen
+			//		This means the buffer overflowed
+			usb::in_buf_index_ = 0;
+		}
+	}
+
 	if (len) {
 		while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0);
 	}
@@ -252,3 +264,19 @@ void usb::write(uint8_t* data, int length)
 {
 	while (usbd_ep_write_packet(usb_device_, 0x82, data, length) == 0);
 }
+
+int usb::read()
+{
+	if(usb::in_buf_index_ > 0)
+	{
+		return in_buf_[--in_buf_index_];
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+const uint16_t usb::IN_BUF_SIZE;
+char usb::in_buf_[IN_BUF_SIZE];
+uint16_t usb::in_buf_index_ = 0;

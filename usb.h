@@ -21,7 +21,6 @@ private:
 		  struct usb_cdc_union_descriptor cdc_union;
 		} __attribute__((packed));
 
-//private:
 public:
 	// pointer to the usb device
 	usbd_device* usb_device_;
@@ -44,6 +43,10 @@ public:
 	static const struct cdc_acm_descriptors cdcacm_functional_descriptors_;
 
 	static const struct usb_interface_descriptor comm_iface_[];
+
+	static const uint16_t IN_BUF_SIZE = 1024;
+	static char in_buf_[];
+	static uint16_t in_buf_index_;
 
 
 private:
@@ -91,6 +94,8 @@ public:
 	void init();
 
 	void write(uint8_t* data, int length);
+
+	int read();
 
 	void poll();
 };

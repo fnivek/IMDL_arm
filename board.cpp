@@ -16,7 +16,7 @@ void board::init()
 // read a byte from the serial port. -1 = failure
 int board::read()
 {
-	return 0;
+	return usb_.read();
 }
 
 // write data to the connection to ROS
