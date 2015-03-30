@@ -141,6 +141,7 @@ int main(void)
 	int i;
 	while (1) {
 
+		nh.hardwareUpdate();
 		nh.spinOnce();
 
 		//simple_obstical_avoidance();

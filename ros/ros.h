@@ -10,7 +10,11 @@
 
 namespace ros
 {
-	typedef ros::NodeHandle_<board> NodeHandle;
+	class NodeHandle : public ros::NodeHandle_<board>
+	{
+	public:
+		void hardwareUpdate();
+	};
 }
 
 #endif

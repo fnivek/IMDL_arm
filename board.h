@@ -25,6 +25,8 @@ public:
   // returns milliseconds since start of program
   unsigned long time();
 
+  void hardwareUpdate();
+
 };
 
 #endif

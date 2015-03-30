@@ -30,3 +30,9 @@ unsigned long board::time()
 {
 	return 0;
 }
+
+// Updates the hardware
+void board::hardwareUpdate()
+{
+	usb_.poll();
+}

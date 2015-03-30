@@ -6,6 +6,6 @@ OPENCM3_DIR := /home/fnivek/arm_libs/libopencm3
 TOOLCHAIN_DIR := /home/fnivek/sat/arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16
 #TOOLCHAIN_DIR := /home/fnivek/sat/arm-none-eabi
 
-OBJS += usb.o motor_controler.o ping.o board.o duration.o time.o
+OBJS += usb.o motor_controler.o ping.o board.o duration.o time.o ros/ros.o
 
 include Makefile.include
