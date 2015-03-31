@@ -49,6 +49,7 @@
 
  // ROS
  #include "ros/ros.h"
+ #include "ros/std_msgs/String.h"
 
  #define MAX_SPEED 0.70
 
@@ -87,8 +88,14 @@ int main(void)
 
 	nh.initNode();
 
+	std_msgs::String msg;
+	ros::Publisher test("test", &msg);
+	msg.data = "HelloROS";
+	nh.advertise(test);
+
 	int i;
 	while (1) {
+		test.publish(&msg);
 		nh.hardwareUpdate();
 		nh.spinOnce();
 
