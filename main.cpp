@@ -40,7 +40,6 @@
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/cm3/scb.h>
-#include <libopencm3/cm3/nvic.h>
 
 // User defined includes
 #include "usb.h"
@@ -90,7 +89,6 @@ int main(void)
 
 	int i;
 	while (1) {
-
 		nh.hardwareUpdate();
 		nh.spinOnce();
 

@@ -4,6 +4,7 @@
 //#include <stdlib.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/cm3/systick.h>
+#include <libopencm3/cm3/nvic.h>		// Required to override syst tick callback
 
 #include "usb.h"
 
@@ -12,18 +13,19 @@ class board
 private:
 	usb usb_;
 
-	/* monotonically increasing number of milliseconds from reset
-	 * overflows every 49 days if you're wondering
-	 */
-	static volatile uint32_t system_millis;
-
 	/* Called when systick fires */
-	static void sys_tick_handler(void);
+	//static void sys_tick_handler(void);
 
 	/* Set up a timer to create 1mS ticks. */
 	static void systick_setup(void);
 
 	uint32_t last_time_;
+
+public:
+	/* monotonically increasing number of milliseconds from reset
+	 * overflows every 49 days if you're wondering
+	 */
+	static volatile uint32_t system_millis;
 
 public:
   board();

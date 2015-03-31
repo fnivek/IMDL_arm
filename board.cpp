@@ -11,7 +11,6 @@ board::board():
 void board::init()
 {
 	
-
 	/* Initilize the clock to: 
 		.pllm = 25,
 		.plln = 240,
@@ -63,8 +62,8 @@ void board::hardwareUpdate()
 	// Heartbeat every second
 	if(board::system_millis - last_time_ > 1000)
 	{
-		last_time_ = board::system_millis;
 		gpio_toggle(GPIOD, GPIO12);
+		last_time_ = board::system_millis;
 	}
 }
 
@@ -73,11 +72,7 @@ void board::hardwareUpdate()
  */
 volatile uint32_t system_millis = 0;
 
-/* Called when systick fires */
-void board::sys_tick_handler(void)
-{
-	board::system_millis++;
-}
+
 
 /* Set up a timer to create 1mS ticks. */
 void board::systick_setup(void)
@@ -88,6 +83,12 @@ void board::systick_setup(void)
 	systick_counter_enable();
 	/* this done last */
 	systick_interrupt_enable();
+}
+
+/* Called when systick fires */
+void sys_tick_handler(void)
+{
+	board::system_millis++;
 }
 
 volatile uint32_t board::system_millis = 0;
