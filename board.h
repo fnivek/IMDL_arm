@@ -39,25 +39,27 @@ public:		//Vars
 	static volatile uint32_t system_millis_;
 
 public:		// Functions
-  //board();
-
-  	// Get the only instance of board
+	// Get the only instance of board
 	static board* get_instance();
 
-  // initialization code necessary to use the serial port
-  void init_(); 
+	// initialization code necessary to use the serial port
+	void init_(); 
 
-  // write data to the connection to ROS
-  void write_(uint8_t* data, int length);
+	// write data to the connection to ROS
+	void write_(uint8_t* data, int length);
 
-  // Data read callback
-  //friend void read_cb_(char* buf, uint8_t len);
+	// returns milliseconds since start of program
+	unsigned long time_();
 
-  // returns milliseconds since start of program
-  unsigned long time_();
-
-  void hardwareUpdate_();
+	void hardwareUpdate_();
 
 };
+
+// None class functions
+// Increments system ticks
+void sys_tick_handler(void);			// This is also defined as a weak symbol in libopencm3/cm3/nvic.h
+
+// Call back for read functions
+void read_cb_(char* buf, uint8_t len);
 
 #endif

@@ -57,9 +57,8 @@ private:
 		void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req));
 	
 	static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep);
-
+	
 	static void (*read_cb_)(char*, uint8_t);
-
 
 
 /* Singelton definitions don't work

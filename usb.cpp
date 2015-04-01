@@ -261,4 +261,16 @@ void usb::write(uint8_t* data, int length)
 	while (usbd_ep_write_packet(usb_device_, 0x82, data, length) == 0);
 }
 
+void usb::setReadCallback(void (*cb)(char*, uint8_t))
+{
+	if(cb == NULL)
+	{
+		return;
+	}
+	else
+	{
+		usb::read_cb_ = cb;
+	}
+}
+
 void (*usb::read_cb_)(char*, uint8_t) = NULL;

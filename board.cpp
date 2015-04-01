@@ -48,6 +48,8 @@ void board::init_()
 
 	usb_.init();
 
+	usb_.setReadCallback(read_cb_);
+
 	// Setup status LEDs
 	rcc_periph_clock_enable(RCC_GPIOD);
 	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
@@ -96,11 +98,19 @@ void board::systick_setup_(void)
 	systick_interrupt_enable();
 }
 
+// None class functions
+
 /* Called when systick fires */
 void sys_tick_handler(void)
 {
 	board::system_millis_++;
 }
 
+void read_cb_(char* buf, uint8_t len)
+{
+	gpio_toggle(GPIOD, GPIO15);
+}
+
+// Static variable inits
 volatile uint32_t board::system_millis_ = 0;
 board* board::single_ = NULL;
