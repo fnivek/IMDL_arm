@@ -28,8 +28,8 @@ namespace gazebo_msgs
       geometry_msgs::Vector3 st_contact_normals;
       geometry_msgs::Vector3 * contact_normals;
       uint8_t depths_length;
-      float st_depths;
-      float * depths;
+      double st_depths;
+      double * depths;
 
     ContactState():
       info(""),
@@ -88,7 +88,20 @@ namespace gazebo_msgs
       *(outbuffer + offset++) = 0;
       *(outbuffer + offset++) = 0;
       for( uint8_t i = 0; i < depths_length; i++){
-      offset += serializeAvrFloat64(outbuffer + offset, this->depths[i]);
+      union {
+        double real;
+        uint64_t base;
+      } u_depthsi;
+      u_depthsi.real = this->depths[i];
+      *(outbuffer + offset + 0) = (u_depthsi.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_depthsi.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_depthsi.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_depthsi.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_depthsi.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_depthsi.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_depthsi.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_depthsi.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->depths[i]);
       }
       return offset;
     }
@@ -153,12 +166,26 @@ namespace gazebo_msgs
       }
       uint8_t depths_lengthT = *(inbuffer + offset++);
       if(depths_lengthT > depths_length)
-        this->depths = (float*)realloc(this->depths, depths_lengthT * sizeof(float));
+        this->depths = (double*)realloc(this->depths, depths_lengthT * sizeof(double));
       offset += 3;
       depths_length = depths_lengthT;
       for( uint8_t i = 0; i < depths_length; i++){
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->st_depths));
-        memcpy( &(this->depths[i]), &(this->st_depths), sizeof(float));
+      union {
+        double real;
+        uint64_t base;
+      } u_st_depths;
+      u_st_depths.base = 0;
+      u_st_depths.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_st_depths.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_st_depths.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_st_depths.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_st_depths.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_st_depths.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_st_depths.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_st_depths.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->st_depths = u_st_depths.real;
+      offset += sizeof(this->st_depths);
+        memcpy( &(this->depths[i]), &(this->st_depths), sizeof(double));
       }
      return offset;
     }

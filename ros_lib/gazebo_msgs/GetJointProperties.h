@@ -56,14 +56,14 @@ static const char GETJOINTPROPERTIES[] = "gazebo_msgs/GetJointProperties";
     public:
       uint8_t type;
       uint8_t damping_length;
-      float st_damping;
-      float * damping;
+      double st_damping;
+      double * damping;
       uint8_t position_length;
-      float st_position;
-      float * position;
+      double st_position;
+      double * position;
       uint8_t rate_length;
-      float st_rate;
-      float * rate;
+      double st_rate;
+      double * rate;
       bool success;
       const char* status_message;
       enum { REVOLUTE =  0                 };
@@ -93,21 +93,60 @@ static const char GETJOINTPROPERTIES[] = "gazebo_msgs/GetJointProperties";
       *(outbuffer + offset++) = 0;
       *(outbuffer + offset++) = 0;
       for( uint8_t i = 0; i < damping_length; i++){
-      offset += serializeAvrFloat64(outbuffer + offset, this->damping[i]);
+      union {
+        double real;
+        uint64_t base;
+      } u_dampingi;
+      u_dampingi.real = this->damping[i];
+      *(outbuffer + offset + 0) = (u_dampingi.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_dampingi.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_dampingi.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_dampingi.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_dampingi.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_dampingi.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_dampingi.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_dampingi.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->damping[i]);
       }
       *(outbuffer + offset++) = position_length;
       *(outbuffer + offset++) = 0;
       *(outbuffer + offset++) = 0;
       *(outbuffer + offset++) = 0;
       for( uint8_t i = 0; i < position_length; i++){
-      offset += serializeAvrFloat64(outbuffer + offset, this->position[i]);
+      union {
+        double real;
+        uint64_t base;
+      } u_positioni;
+      u_positioni.real = this->position[i];
+      *(outbuffer + offset + 0) = (u_positioni.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_positioni.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_positioni.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_positioni.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_positioni.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_positioni.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_positioni.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_positioni.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->position[i]);
       }
       *(outbuffer + offset++) = rate_length;
       *(outbuffer + offset++) = 0;
       *(outbuffer + offset++) = 0;
       *(outbuffer + offset++) = 0;
       for( uint8_t i = 0; i < rate_length; i++){
-      offset += serializeAvrFloat64(outbuffer + offset, this->rate[i]);
+      union {
+        double real;
+        uint64_t base;
+      } u_ratei;
+      u_ratei.real = this->rate[i];
+      *(outbuffer + offset + 0) = (u_ratei.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_ratei.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_ratei.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_ratei.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_ratei.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_ratei.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_ratei.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_ratei.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->rate[i]);
       }
       union {
         bool real;
@@ -131,30 +170,72 @@ static const char GETJOINTPROPERTIES[] = "gazebo_msgs/GetJointProperties";
       offset += sizeof(this->type);
       uint8_t damping_lengthT = *(inbuffer + offset++);
       if(damping_lengthT > damping_length)
-        this->damping = (float*)realloc(this->damping, damping_lengthT * sizeof(float));
+        this->damping = (double*)realloc(this->damping, damping_lengthT * sizeof(double));
       offset += 3;
       damping_length = damping_lengthT;
       for( uint8_t i = 0; i < damping_length; i++){
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->st_damping));
-        memcpy( &(this->damping[i]), &(this->st_damping), sizeof(float));
+      union {
+        double real;
+        uint64_t base;
+      } u_st_damping;
+      u_st_damping.base = 0;
+      u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->st_damping = u_st_damping.real;
+      offset += sizeof(this->st_damping);
+        memcpy( &(this->damping[i]), &(this->st_damping), sizeof(double));
       }
       uint8_t position_lengthT = *(inbuffer + offset++);
       if(position_lengthT > position_length)
-        this->position = (float*)realloc(this->position, position_lengthT * sizeof(float));
+        this->position = (double*)realloc(this->position, position_lengthT * sizeof(double));
       offset += 3;
       position_length = position_lengthT;
       for( uint8_t i = 0; i < position_length; i++){
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->st_position));
-        memcpy( &(this->position[i]), &(this->st_position), sizeof(float));
+      union {
+        double real;
+        uint64_t base;
+      } u_st_position;
+      u_st_position.base = 0;
+      u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->st_position = u_st_position.real;
+      offset += sizeof(this->st_position);
+        memcpy( &(this->position[i]), &(this->st_position), sizeof(double));
       }
       uint8_t rate_lengthT = *(inbuffer + offset++);
       if(rate_lengthT > rate_length)
-        this->rate = (float*)realloc(this->rate, rate_lengthT * sizeof(float));
+        this->rate = (double*)realloc(this->rate, rate_lengthT * sizeof(double));
       offset += 3;
       rate_length = rate_lengthT;
       for( uint8_t i = 0; i < rate_length; i++){
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->st_rate));
-        memcpy( &(this->rate[i]), &(this->st_rate), sizeof(float));
+      union {
+        double real;
+        uint64_t base;
+      } u_st_rate;
+      u_st_rate.base = 0;
+      u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->st_rate = u_st_rate.real;
+      offset += sizeof(this->st_rate);
+        memcpy( &(this->rate[i]), &(this->st_rate), sizeof(double));
       }
       union {
         bool real;

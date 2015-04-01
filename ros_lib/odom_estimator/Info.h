@@ -23,11 +23,11 @@ namespace odom_estimator
       int32_t st_gps_bias_prns;
       int32_t * gps_bias_prns;
       uint8_t gps_bias_biases_length;
-      float st_gps_bias_biases;
-      float * gps_bias_biases;
+      double st_gps_bias_biases;
+      double * gps_bias_biases;
       uint8_t gps_bias_stddevs_length;
-      float st_gps_bias_stddevs;
-      float * gps_bias_stddevs;
+      double st_gps_bias_stddevs;
+      double * gps_bias_stddevs;
 
     Info():
       header(),
@@ -70,14 +70,40 @@ namespace odom_estimator
       *(outbuffer + offset++) = 0;
       *(outbuffer + offset++) = 0;
       for( uint8_t i = 0; i < gps_bias_biases_length; i++){
-      offset += serializeAvrFloat64(outbuffer + offset, this->gps_bias_biases[i]);
+      union {
+        double real;
+        uint64_t base;
+      } u_gps_bias_biasesi;
+      u_gps_bias_biasesi.real = this->gps_bias_biases[i];
+      *(outbuffer + offset + 0) = (u_gps_bias_biasesi.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_gps_bias_biasesi.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_gps_bias_biasesi.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_gps_bias_biasesi.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_gps_bias_biasesi.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_gps_bias_biasesi.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_gps_bias_biasesi.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_gps_bias_biasesi.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->gps_bias_biases[i]);
       }
       *(outbuffer + offset++) = gps_bias_stddevs_length;
       *(outbuffer + offset++) = 0;
       *(outbuffer + offset++) = 0;
       *(outbuffer + offset++) = 0;
       for( uint8_t i = 0; i < gps_bias_stddevs_length; i++){
-      offset += serializeAvrFloat64(outbuffer + offset, this->gps_bias_stddevs[i]);
+      union {
+        double real;
+        uint64_t base;
+      } u_gps_bias_stddevsi;
+      u_gps_bias_stddevsi.real = this->gps_bias_stddevs[i];
+      *(outbuffer + offset + 0) = (u_gps_bias_stddevsi.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_gps_bias_stddevsi.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_gps_bias_stddevsi.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_gps_bias_stddevsi.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_gps_bias_stddevsi.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_gps_bias_stddevsi.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_gps_bias_stddevsi.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_gps_bias_stddevsi.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->gps_bias_stddevs[i]);
       }
       return offset;
     }
@@ -111,21 +137,49 @@ namespace odom_estimator
       }
       uint8_t gps_bias_biases_lengthT = *(inbuffer + offset++);
       if(gps_bias_biases_lengthT > gps_bias_biases_length)
-        this->gps_bias_biases = (float*)realloc(this->gps_bias_biases, gps_bias_biases_lengthT * sizeof(float));
+        this->gps_bias_biases = (double*)realloc(this->gps_bias_biases, gps_bias_biases_lengthT * sizeof(double));
       offset += 3;
       gps_bias_biases_length = gps_bias_biases_lengthT;
       for( uint8_t i = 0; i < gps_bias_biases_length; i++){
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->st_gps_bias_biases));
-        memcpy( &(this->gps_bias_biases[i]), &(this->st_gps_bias_biases), sizeof(float));
+      union {
+        double real;
+        uint64_t base;
+      } u_st_gps_bias_biases;
+      u_st_gps_bias_biases.base = 0;
+      u_st_gps_bias_biases.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_st_gps_bias_biases.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_st_gps_bias_biases.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_st_gps_bias_biases.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_st_gps_bias_biases.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_st_gps_bias_biases.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_st_gps_bias_biases.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_st_gps_bias_biases.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->st_gps_bias_biases = u_st_gps_bias_biases.real;
+      offset += sizeof(this->st_gps_bias_biases);
+        memcpy( &(this->gps_bias_biases[i]), &(this->st_gps_bias_biases), sizeof(double));
       }
       uint8_t gps_bias_stddevs_lengthT = *(inbuffer + offset++);
       if(gps_bias_stddevs_lengthT > gps_bias_stddevs_length)
-        this->gps_bias_stddevs = (float*)realloc(this->gps_bias_stddevs, gps_bias_stddevs_lengthT * sizeof(float));
+        this->gps_bias_stddevs = (double*)realloc(this->gps_bias_stddevs, gps_bias_stddevs_lengthT * sizeof(double));
       offset += 3;
       gps_bias_stddevs_length = gps_bias_stddevs_lengthT;
       for( uint8_t i = 0; i < gps_bias_stddevs_length; i++){
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->st_gps_bias_stddevs));
-        memcpy( &(this->gps_bias_stddevs[i]), &(this->st_gps_bias_stddevs), sizeof(float));
+      union {
+        double real;
+        uint64_t base;
+      } u_st_gps_bias_stddevs;
+      u_st_gps_bias_stddevs.base = 0;
+      u_st_gps_bias_stddevs.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_st_gps_bias_stddevs.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_st_gps_bias_stddevs.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_st_gps_bias_stddevs.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_st_gps_bias_stddevs.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_st_gps_bias_stddevs.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_st_gps_bias_stddevs.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_st_gps_bias_stddevs.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->st_gps_bias_stddevs = u_st_gps_bias_stddevs.real;
+      offset += sizeof(this->st_gps_bias_stddevs);
+        memcpy( &(this->gps_bias_stddevs[i]), &(this->st_gps_bias_stddevs), sizeof(double));
       }
      return offset;
     }

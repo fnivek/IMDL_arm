@@ -15,9 +15,9 @@ namespace propagator_motor_driver
     public:
       std_msgs::Header header;
       const char* id;
-      float current;
-      float out_voltage;
-      float batt_voltage;
+      double current;
+      double out_voltage;
+      double batt_voltage;
 
     motor_driver_statistics():
       header(),
@@ -37,9 +37,48 @@ namespace propagator_motor_driver
       offset += 4;
       memcpy(outbuffer + offset, this->id, length_id);
       offset += length_id;
-      offset += serializeAvrFloat64(outbuffer + offset, this->current);
-      offset += serializeAvrFloat64(outbuffer + offset, this->out_voltage);
-      offset += serializeAvrFloat64(outbuffer + offset, this->batt_voltage);
+      union {
+        double real;
+        uint64_t base;
+      } u_current;
+      u_current.real = this->current;
+      *(outbuffer + offset + 0) = (u_current.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_current.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_current.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_current.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_current.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_current.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_current.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_current.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->current);
+      union {
+        double real;
+        uint64_t base;
+      } u_out_voltage;
+      u_out_voltage.real = this->out_voltage;
+      *(outbuffer + offset + 0) = (u_out_voltage.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_out_voltage.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_out_voltage.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_out_voltage.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_out_voltage.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_out_voltage.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_out_voltage.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_out_voltage.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->out_voltage);
+      union {
+        double real;
+        uint64_t base;
+      } u_batt_voltage;
+      u_batt_voltage.real = this->batt_voltage;
+      *(outbuffer + offset + 0) = (u_batt_voltage.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_batt_voltage.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_batt_voltage.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_batt_voltage.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_batt_voltage.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_batt_voltage.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_batt_voltage.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_batt_voltage.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->batt_voltage);
       return offset;
     }
 
@@ -56,9 +95,51 @@ namespace propagator_motor_driver
       inbuffer[offset+length_id-1]=0;
       this->id = (char *)(inbuffer + offset-1);
       offset += length_id;
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->current));
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->out_voltage));
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->batt_voltage));
+      union {
+        double real;
+        uint64_t base;
+      } u_current;
+      u_current.base = 0;
+      u_current.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_current.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_current.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_current.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_current.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_current.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_current.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_current.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->current = u_current.real;
+      offset += sizeof(this->current);
+      union {
+        double real;
+        uint64_t base;
+      } u_out_voltage;
+      u_out_voltage.base = 0;
+      u_out_voltage.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_out_voltage.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_out_voltage.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_out_voltage.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_out_voltage.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_out_voltage.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_out_voltage.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_out_voltage.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->out_voltage = u_out_voltage.real;
+      offset += sizeof(this->out_voltage);
+      union {
+        double real;
+        uint64_t base;
+      } u_batt_voltage;
+      u_batt_voltage.base = 0;
+      u_batt_voltage.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_batt_voltage.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_batt_voltage.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_batt_voltage.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_batt_voltage.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_batt_voltage.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_batt_voltage.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_batt_voltage.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->batt_voltage = u_batt_voltage.real;
+      offset += sizeof(this->batt_voltage);
      return offset;
     }
 

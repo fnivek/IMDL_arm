@@ -16,3 +16,32 @@ namespace object_finder
       geometry_msgs::Point corners[3];
 
     Triangle():
+      corners()
+    {
+    }
+
+    virtual int serialize(unsigned char *outbuffer) const
+    {
+      int offset = 0;
+      for( uint8_t i = 0; i < 3; i++){
+      offset += this->corners[i].serialize(outbuffer + offset);
+      }
+      return offset;
+    }
+
+    virtual int deserialize(unsigned char *inbuffer)
+    {
+      int offset = 0;
+      for( uint8_t i = 0; i < 3; i++){
+      offset += this->corners[i].deserialize(inbuffer + offset);
+      }
+     return offset;
+    }
+
+    const char * getType(){ return "object_finder/Triangle"; };
+    const char * getMD5(){ return "a0e200474a3819c8499cd604fce8e114"; };
+
+  };
+
+}
+#endif

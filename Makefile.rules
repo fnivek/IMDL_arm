@@ -102,6 +102,18 @@ CXXFLAGS	+= -Wall -MD -DSTM32f4 -Wsign-conversion -Wsign-compare -std=c++11
 ###############################################################################
 # C & C++ preprocessor common flags
 
+#CPPFLAGS	+= -nostdinc	# Don't use standard include directories
+
+#CPPFLAGS	+= -I/usr/arm-none-eabi/include
+#CPPFLAGS	+= -I/usr/lib/gcc/arm-none-eabi/4.9.3/include
+CPPFLAGS	+= -I./ros_lib
+
+# Standard include path
+#CPPFLAGS	+= -I/usr/local/include
+#CPPFLAGS	+= -Ilibdir/gcc/target/version/include
+#CPPFLAGS	+= -I/usr/target/include
+#CPPFLAGS	+= -I/usr/include
+
 CPPFLAGS	+= -MD
 CPPFLAGS	+= -Wall -Wundef
 CPPFLAGS	+= -I$(INCLUDE_DIR) $(DEFS)

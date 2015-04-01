@@ -49,7 +49,7 @@
 
  // ROS
  #include "ros/ros.h"
- #include "ros/std_msgs/String.h"
+ #include "std_msgs/String.h"
 
  #define MAX_SPEED 0.70
 

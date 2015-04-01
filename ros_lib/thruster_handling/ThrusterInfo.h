@@ -22,8 +22,8 @@ namespace thruster_handling
       bool active;
       geometry_msgs::Point position;
       geometry_msgs::Vector3 direction;
-      float min_force;
-      float max_force;
+      double min_force;
+      double max_force;
       geometry_msgs::Vector3 torque_per_force;
 
     ThrusterInfo():
@@ -67,8 +67,34 @@ namespace thruster_handling
       offset += sizeof(this->active);
       offset += this->position.serialize(outbuffer + offset);
       offset += this->direction.serialize(outbuffer + offset);
-      offset += serializeAvrFloat64(outbuffer + offset, this->min_force);
-      offset += serializeAvrFloat64(outbuffer + offset, this->max_force);
+      union {
+        double real;
+        uint64_t base;
+      } u_min_force;
+      u_min_force.real = this->min_force;
+      *(outbuffer + offset + 0) = (u_min_force.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_min_force.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_min_force.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_min_force.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_min_force.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_min_force.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_min_force.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_min_force.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->min_force);
+      union {
+        double real;
+        uint64_t base;
+      } u_max_force;
+      u_max_force.real = this->max_force;
+      *(outbuffer + offset + 0) = (u_max_force.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_max_force.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_max_force.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_max_force.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_max_force.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_max_force.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_max_force.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_max_force.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->max_force);
       offset += this->torque_per_force.serialize(outbuffer + offset);
       return offset;
     }
@@ -106,8 +132,36 @@ namespace thruster_handling
       offset += sizeof(this->active);
       offset += this->position.deserialize(inbuffer + offset);
       offset += this->direction.deserialize(inbuffer + offset);
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->min_force));
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->max_force));
+      union {
+        double real;
+        uint64_t base;
+      } u_min_force;
+      u_min_force.base = 0;
+      u_min_force.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_min_force.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_min_force.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_min_force.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_min_force.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_min_force.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_min_force.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_min_force.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->min_force = u_min_force.real;
+      offset += sizeof(this->min_force);
+      union {
+        double real;
+        uint64_t base;
+      } u_max_force;
+      u_max_force.base = 0;
+      u_max_force.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_max_force.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_max_force.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_max_force.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_max_force.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_max_force.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_max_force.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_max_force.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->max_force = u_max_force.real;
+      offset += sizeof(this->max_force);
       offset += this->torque_per_force.deserialize(inbuffer + offset);
      return offset;
     }

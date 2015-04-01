@@ -16,7 +16,7 @@ static const char APPLYJOINTEFFORT[] = "gazebo_msgs/ApplyJointEffort";
   {
     public:
       const char* joint_name;
-      float effort;
+      double effort;
       ros::Time start_time;
       ros::Duration duration;
 
@@ -36,7 +36,20 @@ static const char APPLYJOINTEFFORT[] = "gazebo_msgs/ApplyJointEffort";
       offset += 4;
       memcpy(outbuffer + offset, this->joint_name, length_joint_name);
       offset += length_joint_name;
-      offset += serializeAvrFloat64(outbuffer + offset, this->effort);
+      union {
+        double real;
+        uint64_t base;
+      } u_effort;
+      u_effort.real = this->effort;
+      *(outbuffer + offset + 0) = (u_effort.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_effort.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_effort.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_effort.base >> (8 * 3)) & 0xFF;
+      *(outbuffer + offset + 4) = (u_effort.base >> (8 * 4)) & 0xFF;
+      *(outbuffer + offset + 5) = (u_effort.base >> (8 * 5)) & 0xFF;
+      *(outbuffer + offset + 6) = (u_effort.base >> (8 * 6)) & 0xFF;
+      *(outbuffer + offset + 7) = (u_effort.base >> (8 * 7)) & 0xFF;
+      offset += sizeof(this->effort);
       *(outbuffer + offset + 0) = (this->start_time.sec >> (8 * 0)) & 0xFF;
       *(outbuffer + offset + 1) = (this->start_time.sec >> (8 * 1)) & 0xFF;
       *(outbuffer + offset + 2) = (this->start_time.sec >> (8 * 2)) & 0xFF;
@@ -72,7 +85,21 @@ static const char APPLYJOINTEFFORT[] = "gazebo_msgs/ApplyJointEffort";
       inbuffer[offset+length_joint_name-1]=0;
       this->joint_name = (char *)(inbuffer + offset-1);
       offset += length_joint_name;
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->effort));
+      union {
+        double real;
+        uint64_t base;
+      } u_effort;
+      u_effort.base = 0;
+      u_effort.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_effort.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_effort.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_effort.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      u_effort.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+      u_effort.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+      u_effort.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+      u_effort.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+      this->effort = u_effort.real;
+      offset += sizeof(this->effort);
       this->start_time.sec =  ((uint32_t) (*(inbuffer + offset)));
       this->start_time.sec |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
       this->start_time.sec |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
