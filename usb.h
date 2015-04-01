@@ -58,6 +58,8 @@ private:
 	
 	static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep);
 
+	static void (*read_cb_)(char*, uint8_t);
+
 
 
 /* Singelton definitions don't work
@@ -95,9 +97,9 @@ public:
 
 	void write(uint8_t* data, int length);
 
-	int read();
-
 	void poll();
+
+	void setReadCallback(void (*cb)(char*, uint8_t));
 };
 
 #endif

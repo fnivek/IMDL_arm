@@ -8,7 +8,7 @@ board::board():
 }
 
 // initialization code necessary to use the serial port
-void board::init()
+void board::init_()
 {
 	
 	/* Initilize the clock to: 
@@ -27,7 +27,7 @@ void board::init()
   	*/
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
 
-	systick_setup();
+	systick_setup_();
 
 	usb_.init();
 
@@ -36,46 +36,40 @@ void board::init()
 	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
 }
 
-// read a byte from the serial port. -1 = failure
-int board::read()
-{
-	return usb_.read();
-}
-
 // write data to the connection to ROS
-void board::write(uint8_t* data, int length)
+void board::write_(uint8_t* data, int length)
 {
 	usb_.write(data, length);
 }
 
 // returns milliseconds since start of program
-unsigned long board::time()
+unsigned long board::time_()
 {
-	return board::system_millis;
+	return board::system_millis_;
 }
 
 // Updates the hardware
-void board::hardwareUpdate()
+void board::hardwareUpdate_()
 {
 	usb_.poll();
 
 	// Heartbeat every second
-	if(board::system_millis - last_time_ > 1000)
+	if(board::system_millis_ - last_time_ > 1000)
 	{
 		gpio_toggle(GPIOD, GPIO12);
-		last_time_ = board::system_millis;
+		last_time_ = board::system_millis_;
 	}
 }
 
 /* monotonically increasing number of milliseconds from reset
  * overflows every 49 days if you're wondering
  */
-volatile uint32_t system_millis = 0;
+volatile uint32_t system_millis_ = 0;
 
 
 
 /* Set up a timer to create 1mS ticks. */
-void board::systick_setup(void)
+void board::systick_setup_(void)
 {
 	/* clock rate / 1000 to get 1mS interrupt rate */
 	systick_set_reload(120000);
@@ -86,9 +80,9 @@ void board::systick_setup(void)
 }
 
 /* Called when systick fires */
-void sys_tick_handler(void)
+void sys_tick_handler_(void)
 {
-	board::system_millis++;
+	board::system_millis_++;
 }
 
-volatile uint32_t board::system_millis = 0;
+volatile uint32_t board::system_millis_ = 0;

@@ -46,6 +46,7 @@
 #include "motor_controler.h"
 #include "helpers.h"
 #include "ping.h"
+#include "board.h"
 
  #define MAX_SPEED 0.70
 
@@ -71,6 +72,9 @@ motor_controler motors(m1_in1, m1_in2, m1_pwm,
 
 int main(void)
 {
+
+	board bd;
+	bd.init_();
 	
 	motors.init();
 	motor_controler::direction current_dir = motor_controler::FORWARD;
@@ -82,7 +86,7 @@ int main(void)
 
 	int i;
 	while (1) {
-		//test.publish(&msg);
+		bd.hardwareUpdate_();
 
 		//simple_obstical_avoidance();
 	}

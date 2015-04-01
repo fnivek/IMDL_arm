@@ -17,7 +17,7 @@ private:
 	//static void sys_tick_handler(void);
 
 	/* Set up a timer to create 1mS ticks. */
-	static void systick_setup(void);
+	static void systick_setup_(void);
 
 	uint32_t last_time_;
 
@@ -25,24 +25,24 @@ public:
 	/* monotonically increasing number of milliseconds from reset
 	 * overflows every 49 days if you're wondering
 	 */
-	static volatile uint32_t system_millis;
+	static volatile uint32_t system_millis_;
 
 public:
   board();
 
   // initialization code necessary to use the serial port
-  void init(); 
-
-  // read a byte from the serial port. -1 = failure
-  int read();
+  void init_(); 
 
   // write data to the connection to ROS
-  void write(uint8_t* data, int length);
+  void write_(uint8_t* data, int length);
+
+  // Data read callback
+  //friend void read_cb_(char* buf, uint8_t len);
 
   // returns milliseconds since start of program
-  unsigned long time();
+  unsigned long time_();
 
-  void hardwareUpdate();
+  void hardwareUpdate_();
 
 };
 
