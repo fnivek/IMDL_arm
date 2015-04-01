@@ -47,10 +47,6 @@
 #include "helpers.h"
 #include "ping.h"
 
- // ROS
- #include "ros/ros.h"
- #include "std_msgs/String.h"
-
  #define MAX_SPEED 0.70
 
  // Debug
@@ -84,20 +80,9 @@ int main(void)
 	// Initilize Ping ultrasonic sensor
 	//pingy.init();
 
-	ros::NodeHandle nh;
-
-	nh.initNode();
-
-	std_msgs::String msg;
-	//ros::Publisher test("test", &msg);
-	msg.data = "HelloROS";
-	//nh.advertise(test);
-
 	int i;
 	while (1) {
 		//test.publish(&msg);
-		nh.hardwareUpdate();
-		nh.spinOnce();
 
 		//simple_obstical_avoidance();
 	}
