@@ -10,25 +10,39 @@
 
 class board
 {
-private:
+private:	// Vars
 	usb usb_;
 
+	uint32_t last_time_;
+
+private:	// Functions
 	/* Called when systick fires */
 	//static void sys_tick_handler(void);
 
 	/* Set up a timer to create 1mS ticks. */
 	static void systick_setup_(void);
 
-	uint32_t last_time_;
+	static board* single_;
 
-public:
+	board();
+
+	// Do not implement!
+	board(board const&){};
+	void operator=(board const&){};
+
+	~board();
+
+public:		//Vars
 	/* monotonically increasing number of milliseconds from reset
 	 * overflows every 49 days if you're wondering
 	 */
 	static volatile uint32_t system_millis_;
 
-public:
-  board();
+public:		// Functions
+  //board();
+
+  	// Get the only instance of board
+	static board* get_instance();
 
   // initialization code necessary to use the serial port
   void init_(); 

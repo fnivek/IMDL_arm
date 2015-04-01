@@ -7,6 +7,23 @@ board::board():
 
 }
 
+board::~board()
+{
+	delete board::single_;
+	board::single_ = NULL;
+}
+
+board* board::get_instance()
+{
+	if(board::single_ == NULL)
+	{
+		board::single_ = new board();
+		board::single_->init_();
+	}
+
+	return board::single_;
+}
+
 // initialization code necessary to use the serial port
 void board::init_()
 {
@@ -80,9 +97,10 @@ void board::systick_setup_(void)
 }
 
 /* Called when systick fires */
-void sys_tick_handler_(void)
+void sys_tick_handler(void)
 {
 	board::system_millis_++;
 }
 
 volatile uint32_t board::system_millis_ = 0;
+board* board::single_ = NULL;

@@ -73,9 +73,8 @@ motor_controler motors(m1_in1, m1_in2, m1_pwm,
 int main(void)
 {
 
-	board bd;
-	bd.init_();
-	
+	board* bd = board::get_instance();
+
 	motors.init();
 	motor_controler::direction current_dir = motor_controler::FORWARD;
 	motors.set_m1_dir(current_dir);
@@ -86,7 +85,7 @@ int main(void)
 
 	int i;
 	while (1) {
-		bd.hardwareUpdate_();
+		bd->hardwareUpdate_();
 
 		//simple_obstical_avoidance();
 	}
