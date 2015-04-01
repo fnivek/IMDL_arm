@@ -89,13 +89,13 @@ int main(void)
 	nh.initNode();
 
 	std_msgs::String msg;
-	ros::Publisher test("test", &msg);
+	//ros::Publisher test("test", &msg);
 	msg.data = "HelloROS";
-	nh.advertise(test);
+	//nh.advertise(test);
 
 	int i;
 	while (1) {
-		test.publish(&msg);
+		//test.publish(&msg);
 		nh.hardwareUpdate();
 		nh.spinOnce();
 
