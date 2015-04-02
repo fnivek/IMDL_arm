@@ -7,13 +7,29 @@
 #include <libopencm3/cm3/nvic.h>		// Required to override syst tick callback
 
 #include "usb.h"
+#include "helpers.h"
 
 class board
 {
+public:		// Enumerators
+	enum status_
+	{
+		OK,
+		IDK_1,
+		ERROR,
+		IDK_2,
+		IDK_3,
+		IDK_4,
+		IDK_5,
+		IDK_6,
+	};
+
 private:	// Vars
 	usb* usb_;
 
 	uint32_t last_time_;
+
+	pin heartbeat_led_, orange_led_, red_led_, blue_led_; 
 
 private:	// Functions
 	/* Called when systick fires */
@@ -52,6 +68,11 @@ public:		// Functions
 	unsigned long time_();
 
 	void hardwareUpdate_();
+
+	void setStatus_(status_ status);
+
+	// Toggle the heart beat led
+	void beat_();
 
 };
 

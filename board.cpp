@@ -2,9 +2,18 @@
 
 board::board():
 	usb_(NULL),
-	last_time_(0)
+	last_time_(0),
+	heartbeat_led_(), orange_led_(), red_led_(), blue_led_()
 {
+	heartbeat_led_.port = GPIOD;
+	orange_led_.port = GPIOD;
+	red_led_.port = GPIOD;
+	blue_led_.port = GPIOD;
 
+	heartbeat_led_.number = GPIO12;
+	orange_led_.number = GPIO13;
+	red_led_.number = GPIO14;
+	blue_led_.number = GPIO15;
 }
 
 board::~board()
@@ -51,8 +60,9 @@ void board::init_()
 	usb_->setReadCallback(read_cb_);
 
 	// Setup status LEDs
-	rcc_periph_clock_enable(RCC_GPIOD);
-	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
+	rcc_periph_clock_enable(RCC_GPIOD);		// TODO: case statment to activate correct gpio clock
+	gpio_mode_setup(heartbeat_led_.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+		 heartbeat_led_.number | orange_led_.number | red_led_.number | blue_led_.number);
 }
 
 // write data to the connection to ROS
@@ -75,7 +85,7 @@ void board::hardwareUpdate_()
 	// Heartbeat every second
 	if(board::system_millis_ - last_time_ > 1000)
 	{
-		gpio_toggle(GPIOD, GPIO12);
+		beat_();
 		last_time_ = board::system_millis_;
 	}
 }
@@ -98,6 +108,55 @@ void board::systick_setup_(void)
 	systick_interrupt_enable();
 }
 
+void board::setStatus_(status_ status)
+{
+	switch(status)
+	{
+	case OK:
+		gpio_clear(heartbeat_led_.port, red_led_.number | orange_led_.number | blue_led_.number);
+		break;
+
+	case IDK_1:
+		gpio_set(heartbeat_led_.port, orange_led_.number);
+		gpio_clear(heartbeat_led_.port, red_led_.number | blue_led_.number);
+		break;
+
+	case ERROR:
+		gpio_set(heartbeat_led_.port, red_led_.number);
+		gpio_clear(heartbeat_led_.port, orange_led_.number | blue_led_.number);
+		break;
+
+	case IDK_3:
+		gpio_set(heartbeat_led_.port, red_led_.number | orange_led_.number);
+		gpio_clear(heartbeat_led_.port, blue_led_.number);
+		break;
+
+	case IDK_4:
+		gpio_set(heartbeat_led_.port, blue_led_.number);
+		gpio_clear(heartbeat_led_.port, red_led_.number | orange_led_.number);
+		break;
+
+	case IDK_5:
+		gpio_set(heartbeat_led_.port, blue_led_.number | orange_led_.number);
+		gpio_clear(heartbeat_led_.port, red_led_.number);
+		break;
+
+	case IDK_6:
+		gpio_set(heartbeat_led_.port, blue_led_.number | red_led_.number);
+		gpio_clear(heartbeat_led_.port, orange_led_.number);
+		break;
+
+	case IDK_2:
+		gpio_set(heartbeat_led_.port, blue_led_.number | orange_led_.number | red_led_.number);
+		break;
+	}
+}
+
+void board::beat_()
+{
+	gpio_toggle(heartbeat_led_.port, heartbeat_led_.number);
+}
+
 // None class functions
 
 /* Called when systick fires */
@@ -108,7 +167,7 @@ void sys_tick_handler(void)
 
 void read_cb_(void* buf, uint16_t len)
 {
-	gpio_toggle(GPIOD, GPIO15);
+	
 }
 
 // Static variable inits
