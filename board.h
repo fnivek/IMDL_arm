@@ -11,7 +11,7 @@
 class board
 {
 private:	// Vars
-	usb usb_;
+	usb* usb_;
 
 	uint32_t last_time_;
 

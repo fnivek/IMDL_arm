@@ -1,7 +1,7 @@
 #include "board.h"
 
 board::board():
-	usb_(),
+	usb_(NULL),
 	last_time_(0)
 {
 
@@ -46,9 +46,9 @@ void board::init_()
 
 	systick_setup_();
 
-	usb_.init();
+	usb_ = usb::get_instance();
 
-	usb_.setReadCallback(read_cb_);
+	usb_->setReadCallback(read_cb_);
 
 	// Setup status LEDs
 	rcc_periph_clock_enable(RCC_GPIOD);
@@ -58,7 +58,7 @@ void board::init_()
 // write data to the connection to ROS
 void board::write_(uint8_t* data, int length)
 {
-	usb_.write(data, length);
+	usb_->write(data, length);
 }
 
 // returns milliseconds since start of program
@@ -70,7 +70,7 @@ unsigned long board::time_()
 // Updates the hardware
 void board::hardwareUpdate_()
 {
-	usb_.poll();
+	usb_->poll();
 
 	// Heartbeat every second
 	if(board::system_millis_ - last_time_ > 1000)

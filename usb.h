@@ -60,37 +60,26 @@ private:
 	
 	static void (*read_cb_)(char*, uint8_t);
 
+	// Singelton definitions
+	static usb* single_;
 
-/* Singelton definitions don't work
-	usb() :
-		usb_device_(0)
-	{
-
-	}
+	usb();
 
 	// Do not implement!
 	usb(usb const&){};
 	void operator=(usb const&){};
 
-	~usb()
-	{
-		delete usb_device_;
-		usb_device_ = 0;
-	}*/
+	~usb();
 
 public:
 	// Constructor
-	usb();
+	//usb();
 
 	// Destructor
-	~usb();
+	//~usb();
 
-	/* Get the only instance of usb
-	static usb* get_instance()
-	{
-		static usb instance;
-		return &instance;
-	}*/
+	// Get the only instance of usb
+	static usb* get_instance();
 
 	void init();
 

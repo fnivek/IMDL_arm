@@ -222,8 +222,19 @@ usb::usb() :
 // Destructor
 usb::~usb()
 {
-	//delete usb_device_; Something is off here...
+	delete usb_device_;
 	usb_device_ = 0;
+}
+
+// Get the only instance of usb
+usb* usb::get_instance()
+{
+	if(usb::single_ == NULL)
+	{
+		usb::single_ = new usb();
+		usb::single_->init();
+	}
+	return usb::single_;
 }
 
 
@@ -274,3 +285,4 @@ void usb::setReadCallback(void (*cb)(char*, uint8_t))
 }
 
 void (*usb::read_cb_)(char*, uint8_t) = NULL;
+usb* usb::single_ = NULL;
