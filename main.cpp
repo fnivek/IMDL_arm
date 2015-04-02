@@ -83,7 +83,6 @@ int main(void)
 	// Initilize Ping ultrasonic sensor
 	//pingy.init();
 
-	int i;
 	while (1) {
 		bd->hardwareUpdate_();
 

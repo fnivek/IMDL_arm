@@ -8,10 +8,10 @@
 
 #include "usb.h"
 
- const char* usb::usb_strings_[] = {
-		"KipCDroid",
-		"HardwareInterface"
-	};
+const char* usb::usb_strings_[] = {
+	"KipCDroid",
+	"HardwareInterface"
+};
 
 /*
  * This notification endpoint isn't implemented. According to CDC spec its
@@ -267,12 +267,12 @@ void usb::poll()
 	usbd_poll(usb_device_);
 }
 
-void usb::write(uint8_t* data, int length)
+uint16_t usb::write(const void* data, uint16_t length)
 {
-	while (usbd_ep_write_packet(usb_device_, 0x82, data, length) == 0);
+	return usbd_ep_write_packet(usb_device_, 0x82, data, length);
 }
 
-void usb::setReadCallback(void (*cb)(char*, uint8_t))
+void usb::setReadCallback(void (*cb)(void*, uint16_t))
 {
 	if(cb == NULL)
 	{
@@ -284,5 +284,5 @@ void usb::setReadCallback(void (*cb)(char*, uint8_t))
 	}
 }
 
-void (*usb::read_cb_)(char*, uint8_t) = NULL;
+void (*usb::read_cb_)(void*, uint16_t) = NULL;
 usb* usb::single_ = NULL;
