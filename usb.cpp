@@ -43,7 +43,7 @@ const struct usb_endpoint_descriptor usb::data_endp_[] = {{
   .bInterval = 1,
 }};
 
-const struct usb::cdc_acm_descriptors usb::cdcacm_functional_descriptors_ = {
+const struct usb::cdc_acm_descriptors_ usb::cdcacm_functional_descriptors_ = {
   .header = {
 	.bFunctionLength = sizeof(struct usb_cdc_header_descriptor),
 	.bDescriptorType = CS_INTERFACE,
