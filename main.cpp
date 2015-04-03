@@ -23,8 +23,15 @@
  *
  *		PD[12..15]			-->				Status LEDs				Show the status of the robot
  *
- *		PC15				<-->			Ping Signal				EXTI15 for PING)))				
- *		
+ *		PA0					<--				FL sonar echo			EXTI0 for Front left sonar				
+ *		PB0					<--				FM sonar echo 			EXTI0 for Front middle sonar
+ *		PC0 				<--				FR sonar echo 			EXTI0 for Front right sonar
+ *		PD0					<--				Back sonar echo			EXTI0 for Back sonar
+ *		PA1 				-->				FL sonar Trig.			Trigger for Front left sonar
+ *		PB1 				-->				FM sonar Trig.			Trigger for Front middle sonar
+ *		PC1 				-->				FR sonar Trig.			Trigger for Front right sonar
+ *		PD1 				-->				Back sonar Trig.		Trigger for back sonar
+ * 
  */
 
 /*
@@ -50,13 +57,18 @@
 
  #define MAX_SPEED 0.70
 
- // Debug
+// make c++ happy
  void *__dso_handle;
  
 int __cxa_atexit(void (*destructor) (void *), void *arg, void *dso);
 void __cxa_finalize(void *f);
 
+// Forward declerations
 //void simple_obstical_avoidance();
+void forward();
+void stop();
+void turn_right();
+void turn_left();
 
 
 ping pingy({GPIOC, GPIO15});
@@ -82,6 +94,8 @@ int main(void)
 
 	// Initilize Ping ultrasonic sensor
 	//pingy.init();
+
+	stop();
 
 	while (1) {
 		bd->hardwareUpdate_();

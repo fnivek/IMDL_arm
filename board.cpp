@@ -63,6 +63,8 @@ void board::init_()
 	rcc_periph_clock_enable(RCC_GPIOD);		// TODO: case statment to activate correct gpio clock
 	gpio_mode_setup(heartbeat_led_.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
 		 heartbeat_led_.number | orange_led_.number | red_led_.number | blue_led_.number);
+
+	setStatus_(OK);
 }
 
 // write data to the connection to ROS
