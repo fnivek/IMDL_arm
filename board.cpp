@@ -3,7 +3,8 @@
 board::board():
 	usb_(NULL),
 	last_time_(0),
-	heartbeat_led_(), orange_led_(), red_led_(), blue_led_()
+	heartbeat_led_(), orange_led_(), red_led_(), blue_led_(),
+	sonics_(NULL)
 {
 	heartbeat_led_.port = GPIOD;
 	orange_led_.port = GPIOD;
@@ -14,6 +15,8 @@ board::board():
 	orange_led_.number = GPIO13;
 	red_led_.number = GPIO14;
 	blue_led_.number = GPIO15;
+
+	sonics_ = hc_sr04_array::get_instance();
 }
 
 board::~board()

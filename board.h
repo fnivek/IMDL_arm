@@ -8,6 +8,7 @@
 
 #include "usb.h"
 #include "helpers.h"
+#include "HC-SR04_Array.h"
 
 class board
 {
@@ -30,6 +31,8 @@ private:	// Vars
 	uint32_t last_time_;
 
 	pin heartbeat_led_, orange_led_, red_led_, blue_led_; 
+
+	hc_sr04_array* sonics_;
 
 private:	// Functions
 	/* Called when systick fires */

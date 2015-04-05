@@ -52,7 +52,6 @@
 #include "usb.h"
 #include "motor_controler.h"
 #include "helpers.h"
-#include "ping.h"
 #include "board.h"
 
  #define MAX_SPEED 0.70
@@ -70,8 +69,6 @@ void stop();
 void turn_right();
 void turn_left();
 
-
-ping pingy({GPIOC, GPIO15});
 // Initilize motor controller
 pin m1_in1 = {GPIOC, GPIO10};
 pin m1_in2 = {GPIOA, GPIO15};
@@ -92,9 +89,6 @@ int main(void)
 	motors.set_m1_dir(current_dir);
 	motors.set_m2_dir(current_dir);
 
-	// Initilize Ping ultrasonic sensor
-	//pingy.init();
-
 	stop();
 
 	while (1) {
@@ -106,7 +100,7 @@ int main(void)
 
 void tim2_isr(void)
 {
-	pingy.timer_isr();
+	
 }
 
 void turn_right()
