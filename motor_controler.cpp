@@ -33,7 +33,7 @@ void motor_controler::init(void)
 	// GPIO
 	for(int i = 0; i < NUMBER_OF_PINS; ++i)
 	{
-		switch(pins_[i].port)
+		switch(pins_[i].port_)
 		{
 		case GPIOA:
 			rcc_periph_clock_enable(RCC_GPIOA);
@@ -65,18 +65,18 @@ void motor_controler::init(void)
 		}
 
 		// Step 1 set output options (push pull) output, no pull up or pull down
-		gpio_set_output_options(pins_[i].port, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, pins_[i].number);
+		gpio_set_output_options(pins_[i].port_, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, pins_[i].number_);
 
 		// PWM signals must be set up for pwm output otherwise set the pin to be an output
 		if(i == M1_PWM || i == M2_PWM)
 		{
 			// Set to timer one output
-			gpio_mode_setup(pins_[i].port, GPIO_MODE_AF, GPIO_PUPD_NONE, pins_[i].number);
-			gpio_set_af(pins_[i].port, GPIO_AF1, pins_[i].number);
+			gpio_mode_setup(pins_[i].port_, GPIO_MODE_AF, GPIO_PUPD_NONE, pins_[i].number_);
+			gpio_set_af(pins_[i].port_, GPIO_AF1, pins_[i].number_);
 		}
 		else
 		{
-			gpio_mode_setup(pins_[i].port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, pins_[i].number);
+			gpio_mode_setup(pins_[i].port_, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, pins_[i].number_);
 		}
 	}
 	
@@ -117,24 +117,24 @@ void motor_controler::set_m1_dir(direction dir)
 	switch(dir)
 	{
 	case FORWARD:
-		gpio_set(pins_[M1_IN1].port, pins_[M1_IN1].number);
-		gpio_clear(pins_[M1_IN2].port, pins_[M1_IN2].number);
+		gpio_set(pins_[M1_IN1].port_, pins_[M1_IN1].number_);
+		gpio_clear(pins_[M1_IN2].port_, pins_[M1_IN2].number_);
 		break;
 
 	case REVERSE:
-		gpio_clear(pins_[M1_IN1].port, pins_[M1_IN1].number);
-		gpio_set(pins_[M1_IN2].port, pins_[M1_IN2].number);
+		gpio_clear(pins_[M1_IN1].port_, pins_[M1_IN1].number_);
+		gpio_set(pins_[M1_IN2].port_, pins_[M1_IN2].number_);
 		break;
 
 	case FREE_SPIN_H:
-		gpio_set(pins_[M1_IN1].port, pins_[M1_IN1].number);
-		gpio_set(pins_[M1_IN2].port, pins_[M1_IN2].number);
+		gpio_set(pins_[M1_IN1].port_, pins_[M1_IN1].number_);
+		gpio_set(pins_[M1_IN2].port_, pins_[M1_IN2].number_);
 		break;
 
 	case FREE_SPIN_L:
 	default:
-		gpio_clear(pins_[M1_IN1].port, pins_[M1_IN1].number);
-		gpio_clear(pins_[M1_IN2].port, pins_[M1_IN2].number);
+		gpio_clear(pins_[M1_IN1].port_, pins_[M1_IN1].number_);
+		gpio_clear(pins_[M1_IN2].port_, pins_[M1_IN2].number_);
 		break;
 
 	
@@ -146,24 +146,24 @@ void motor_controler::set_m2_dir(direction dir)
 	switch(dir)
 	{
 	case FORWARD:
-		gpio_set(pins_[M2_IN2].port, pins_[M2_IN2].number);
-		gpio_clear(pins_[M2_IN1].port, pins_[M2_IN1].number);
+		gpio_set(pins_[M2_IN2].port_, pins_[M2_IN2].number_);
+		gpio_clear(pins_[M2_IN1].port_, pins_[M2_IN1].number_);
 		break;
 
 	case REVERSE:
-		gpio_clear(pins_[M2_IN2].port, pins_[M2_IN2].number);
-		gpio_set(pins_[M2_IN1].port, pins_[M2_IN1].number);
+		gpio_clear(pins_[M2_IN2].port_, pins_[M2_IN2].number_);
+		gpio_set(pins_[M2_IN1].port_, pins_[M2_IN1].number_);
 		break;
 
 	case FREE_SPIN_H:
-		gpio_set(pins_[M2_IN2].port, pins_[M2_IN2].number);
-		gpio_set(pins_[M2_IN1].port, pins_[M2_IN1].number);
+		gpio_set(pins_[M2_IN2].port_, pins_[M2_IN2].number_);
+		gpio_set(pins_[M2_IN1].port_, pins_[M2_IN1].number_);
 		break;
 
 	case FREE_SPIN_L:
 	default:
-		gpio_clear(pins_[M2_IN2].port, pins_[M2_IN2].number);
-		gpio_clear(pins_[M2_IN1].port, pins_[M2_IN1].number);
+		gpio_clear(pins_[M2_IN2].port_, pins_[M2_IN2].number_);
+		gpio_clear(pins_[M2_IN1].port_, pins_[M2_IN1].number_);
 		break;
 
 	

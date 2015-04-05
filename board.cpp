@@ -3,19 +3,10 @@
 board::board():
 	usb_(NULL),
 	last_time_(0),
-	heartbeat_led_(), orange_led_(), red_led_(), blue_led_(),
+	heartbeat_led_(GPIOD, GPIO12), orange_led_(GPIOD, GPIO13), 
+	red_led_(GPIOD, GPIO14), blue_led_(GPIOD, GPIO15),
 	sonics_(NULL)
 {
-	heartbeat_led_.port = GPIOD;
-	orange_led_.port = GPIOD;
-	red_led_.port = GPIOD;
-	blue_led_.port = GPIOD;
-
-	heartbeat_led_.number = GPIO12;
-	orange_led_.number = GPIO13;
-	red_led_.number = GPIO14;
-	blue_led_.number = GPIO15;
-
 	sonics_ = hc_sr04_array::get_instance();
 
 	/* Initilize the clock to: 
@@ -42,8 +33,8 @@ board::board():
 
 	// Setup status LEDs
 	rcc_periph_clock_enable(RCC_GPIOD);		// TODO: case statment to activate correct gpio clock
-	gpio_mode_setup(heartbeat_led_.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
-		 heartbeat_led_.number | orange_led_.number | red_led_.number | blue_led_.number);
+	gpio_mode_setup(heartbeat_led_.port_, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+		 heartbeat_led_.number_ | orange_led_.number_ | red_led_.number_ | blue_led_.number_);
 
 	setStatus_(OK);
 }
@@ -112,48 +103,48 @@ void board::setStatus_(status_ status)
 	switch(status)
 	{
 	case OK:
-		gpio_clear(heartbeat_led_.port, red_led_.number | orange_led_.number | blue_led_.number);
+		gpio_clear(heartbeat_led_.port_, red_led_.number_ | orange_led_.number_ | blue_led_.number_);
 		break;
 
 	case IDK_1:
-		gpio_set(heartbeat_led_.port, orange_led_.number);
-		gpio_clear(heartbeat_led_.port, red_led_.number | blue_led_.number);
+		gpio_set(heartbeat_led_.port_, orange_led_.number_);
+		gpio_clear(heartbeat_led_.port_, red_led_.number_ | blue_led_.number_);
 		break;
 
 	case ERROR:
-		gpio_set(heartbeat_led_.port, red_led_.number);
-		gpio_clear(heartbeat_led_.port, orange_led_.number | blue_led_.number);
+		gpio_set(heartbeat_led_.port_, red_led_.number_);
+		gpio_clear(heartbeat_led_.port_, orange_led_.number_ | blue_led_.number_);
 		break;
 
 	case IDK_3:
-		gpio_set(heartbeat_led_.port, red_led_.number | orange_led_.number);
-		gpio_clear(heartbeat_led_.port, blue_led_.number);
+		gpio_set(heartbeat_led_.port_, red_led_.number_ | orange_led_.number_);
+		gpio_clear(heartbeat_led_.port_, blue_led_.number_);
 		break;
 
 	case IDK_4:
-		gpio_set(heartbeat_led_.port, blue_led_.number);
-		gpio_clear(heartbeat_led_.port, red_led_.number | orange_led_.number);
+		gpio_set(heartbeat_led_.port_, blue_led_.number_);
+		gpio_clear(heartbeat_led_.port_, red_led_.number_ | orange_led_.number_);
 		break;
 
 	case IDK_5:
-		gpio_set(heartbeat_led_.port, blue_led_.number | orange_led_.number);
-		gpio_clear(heartbeat_led_.port, red_led_.number);
+		gpio_set(heartbeat_led_.port_, blue_led_.number_ | orange_led_.number_);
+		gpio_clear(heartbeat_led_.port_, red_led_.number_);
 		break;
 
 	case IDK_6:
-		gpio_set(heartbeat_led_.port, blue_led_.number | red_led_.number);
-		gpio_clear(heartbeat_led_.port, orange_led_.number);
+		gpio_set(heartbeat_led_.port_, blue_led_.number_ | red_led_.number_);
+		gpio_clear(heartbeat_led_.port_, orange_led_.number_);
 		break;
 
 	case IDK_2:
-		gpio_set(heartbeat_led_.port, blue_led_.number | orange_led_.number | red_led_.number);
+		gpio_set(heartbeat_led_.port_, blue_led_.number_ | orange_led_.number_ | red_led_.number_);
 		break;
 	}
 }
 
 void board::beat_()
 {
-	gpio_toggle(heartbeat_led_.port, heartbeat_led_.number);
+	gpio_toggle(heartbeat_led_.port_, heartbeat_led_.number_);
 }
 
 // None class functions
