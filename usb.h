@@ -77,8 +77,6 @@ public:
 	// Get the only instance of usb
 	static usb* get_instance();
 
-	void init();
-
 	// Write the data out to the usb
 	//	Returns the length of data sent out
 	//	If 0 then we are still transmiting

@@ -216,30 +216,6 @@ void usb::cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 usb::usb() :
 	usb_device_(0)
 {
-
-}
-
-// Destructor
-usb::~usb()
-{
-	delete usb_device_;
-	usb_device_ = 0;
-}
-
-// Get the only instance of usb
-usb* usb::get_instance()
-{
-	if(usb::single_ == NULL)
-	{
-		usb::single_ = new usb();
-		usb::single_->init();
-	}
-	return usb::single_;
-}
-
-
-void usb::init()
-{
 	// Initilize the GPIO and clocks
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_OTGFS);
@@ -259,7 +235,23 @@ void usb::init()
 
 	// Set the reconfiguration callback function
 	usbd_register_set_config_callback(usb_device_, usb::cdcacm_set_config);
+}
 
+// Destructor
+usb::~usb()
+{
+	delete usb_device_;
+	usb_device_ = 0;
+}
+
+// Get the only instance of usb
+usb* usb::get_instance()
+{
+	if(usb::single_ == NULL)
+	{
+		usb::single_ = new usb();
+	}
+	return usb::single_;
 }
 
 void usb::poll()

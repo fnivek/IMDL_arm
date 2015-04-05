@@ -17,29 +17,7 @@ board::board():
 	blue_led_.number = GPIO15;
 
 	sonics_ = hc_sr04_array::get_instance();
-}
 
-board::~board()
-{
-	delete board::single_;
-	board::single_ = NULL;
-}
-
-board* board::get_instance()
-{
-	if(board::single_ == NULL)
-	{
-		board::single_ = new board();
-		board::single_->init_();
-	}
-
-	return board::single_;
-}
-
-// initialization code necessary to use the serial port
-void board::init_()
-{
-	
 	/* Initilize the clock to: 
 		.pllm = 25,
 		.plln = 240,
@@ -68,6 +46,22 @@ void board::init_()
 		 heartbeat_led_.number | orange_led_.number | red_led_.number | blue_led_.number);
 
 	setStatus_(OK);
+}
+
+board::~board()
+{
+	delete board::single_;
+	board::single_ = NULL;
+}
+
+board* board::get_instance()
+{
+	if(board::single_ == NULL)
+	{
+		board::single_ = new board();
+	}
+
+	return board::single_;
 }
 
 // write data to the connection to ROS

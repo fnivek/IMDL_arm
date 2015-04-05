@@ -38,7 +38,7 @@
  *	Timer			who				why					config
  * --------------------------------------------------------------------
  * TIM1			   M1, M2		PWM generation		20KHz, DIV 1, OC
- * TIM2				Ping 		delays				
+ * TIM2			  HC_SR04s 		Input capture						
  */
 
 // Library includes

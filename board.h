@@ -61,9 +61,6 @@ public:		// Functions
 	// Get the only instance of board
 	static board* get_instance();
 
-	// initialization code necessary to use the serial port
-	void init_(); 
-
 	// write data to the connection to ROS
 	void write_(uint8_t* data, int length);
 
