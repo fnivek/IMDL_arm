@@ -153,6 +153,7 @@ void board::beat_()
 void sys_tick_handler(void)
 {
 	board::system_millis_++;
+	hc_sr04_array::get_instance()->systemTimerISR();
 }
 
 void read_cb_(void* buf, uint16_t len)
