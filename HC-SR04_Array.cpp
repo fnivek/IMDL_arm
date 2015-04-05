@@ -63,6 +63,7 @@ hc_sr04_array::hc_sr04_array():
 	timer_enable_counter(TIM2);
 
 	// Step 6 enable timer 2 interrupts
+	timer_enable_irq(TIM2, TIM_DIER_CC1IE);
 	nvic_enable_irq(NVIC_TIM2_IRQ);
 
 	// Send first pulse
@@ -129,6 +130,9 @@ void hc_sr04_array::pulseTimerISR()
 	timer_disable_counter(TIM2);
 	// Reset timer
 	timer_set_counter(TIM2, 0);
+
+	// Clear the flag
+	timer_clear_flag(TIM2, TIM_SR_CC1IF);
 }
 
 // Static initilization
