@@ -66,17 +66,22 @@ private:	// Consts
 	static const uint32_t TRIG_PULSE_WIDTH;
 	static const uint16_t TICKS_PER_IFACE;
 
-
 private: 	//Vars
 	static hc_sr04_array* single_;
 
 	uint8_t current_interface_;
 
 	// All pins
-	interface interfaces_[4];
+	interface interfaces_[NUM_INTERFACES];
+
+	// Distances
+	uint32_t distance_ticks_[NUM_INTERFACES];
 
 	// system tic count
 	uint16_t current_ticks_;
+
+	// Did the last sonar return a value
+	bool successful_read_;
 	
 private:	// functions
 
@@ -94,9 +99,15 @@ public:		// Functions
 	void pulseTimerISR();
 
 	void systemTimerISR();
+
+	void extiISR();
 };
 
 // None class funcitons
-void tim2_isr(void);
+//void tim2_isr(void);
+//void exti0_isr(void);
+//void exti1_isr(void);
+//void exti2_isr(void);
+//void exti3_isr(void);
 
 #endif

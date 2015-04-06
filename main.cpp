@@ -23,14 +23,14 @@
  *
  *		PD[12..15]			-->				Status LEDs				Show the status of the robot
  *
- *		PA0					<--				FL sonar echo			EXTI0 for Front left sonar				
- *		PB0					<--				FM sonar echo 			EXTI0 for Front middle sonar
- *		PC0 				<--				FR sonar echo 			EXTI0 for Front right sonar
- *		PD0					<--				Back sonar echo			EXTI0 for Back sonar
- *		PA1 				-->				FL sonar Trig.			Trigger for Front left sonar
- *		PB1 				-->				FM sonar Trig.			Trigger for Front middle sonar
- *		PC1 				-->				FR sonar Trig.			Trigger for Front right sonar
- *		PD1 				-->				Back sonar Trig.		Trigger for back sonar
+ *		PB0					<--				F sonar echo 			EXTI0 for Front middle sonar
+ *		PB1					<--				B sonar echo			EXTI0 for Back sonar			
+ *		PB2 				<--				FR sonar echo 			EXTI0 for Front right sonar
+ *		PB3					<--				FL sonar echo			EXTI0 for Front left sonar	
+ *		PA0 				-->				F sonar Trig.			Trigger for Front middle sonar
+ *		PA1 				-->				B sonar Trig.			Trigger for back sonar
+ *		PA2 				-->				FR sonar Trig.			Trigger for Front right sonar
+ *		PA3 				-->				FL sonar Trig.			Trigger for Front left sonar
  * 
  */
 
@@ -96,11 +96,6 @@ int main(void)
 
 		//simple_obstical_avoidance();
 	}
-}
-
-void tim2_isr(void)
-{
-	
 }
 
 void turn_right()

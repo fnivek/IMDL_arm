@@ -3,11 +3,13 @@
 hc_sr04_array::hc_sr04_array():
 	current_interface_(IFACE_F),
 	interfaces_ { 
-				 interface(GPIOB, GPIO1, GPIOB, GPIO0),
-				 interface(GPIOD, GPIO1, GPIOD, GPIO0),
-				 interface(GPIOC, GPIO1, GPIOC, GPIO0), 
-				 interface(GPIOA, GPIO1, GPIOA, GPIO0)
-				}
+				 interface(GPIOA, GPIO0, GPIOB, GPIO0),
+				 interface(GPIOA, GPIO1, GPIOB, GPIO1),
+				 interface(GPIOA, GPIO2, GPIOB, GPIO2), 
+				 interface(GPIOA, GPIO3, GPIOB, GPIO3)
+				},
+	distance_ticks_(),
+	successful_read_(false)
 
 {
 
@@ -28,7 +30,17 @@ hc_sr04_array::hc_sr04_array():
 		gpio_mode_setup(echo.port_, GPIO_MODE_AF, GPIO_PUPD_NONE, echo.number_);
 		gpio_clear(trig.port_, trig.number_);
 
+		// Setup external interupts
+		exti_select_source(echo.number_, echo.port_);
+		exti_set_trigger(echo.number_, EXTI_TRIGGER_RISING);
 	}
+
+	// Enable exti interupts
+	// TODO put into loop above and use switch statment
+	nvic_enable_irq(NVIC_EXTI0_IRQ);
+	nvic_enable_irq(NVIC_EXTI1_IRQ);
+	nvic_enable_irq(NVIC_EXTI2_IRQ);
+	nvic_enable_irq(NVIC_EXTI3_IRQ);	
 
 	// Setup timer
 	// Step 1 enable peripherial clock
@@ -90,17 +102,29 @@ hc_sr04_array* hc_sr04_array::get_instance()
 void hc_sr04_array::systemTimerISR()
 {
 	++current_ticks_;
+
+	// Wait for TICKS_PER_IFACE before switching to next sonar
 	if(current_ticks_ >= TICKS_PER_IFACE)
 	{
 		current_ticks_ = 0;
 
+		// Cancle any pending exti request
+		exti_disable_request(interfaces_[current_interface_].echo_.number_);
+
+		//Check if last read didn't return
+		if(!successful_read_)
+		{
+			// No read so set to max distance
+			distance_ticks_[current_interface_] = 0xFFFFFFFF;
+		}
+		successful_read_ = false;
+
+		// Increment current sonar interface
 		++current_interface_;
 		if(current_interface_ >= NUM_INTERFACES)
 		{
 			current_interface_ = 0;
 		}
-
-		//TODO: Check if last read didn't return
 
 		// Start next trigger
 		pin trig = interfaces_[current_interface_].trig_;
@@ -120,6 +144,7 @@ void hc_sr04_array::systemTimerISR()
 //
 void hc_sr04_array::pulseTimerISR()
 {
+
 	// Clear the triger pin
 	pin trig = interfaces_[current_interface_].trig_;
 	gpio_clear(trig.port_, trig.number_);
@@ -131,8 +156,31 @@ void hc_sr04_array::pulseTimerISR()
 	// Reset timer
 	timer_set_counter(TIM2, 0);
 
-	// Clear the flag
-	timer_clear_flag(TIM2, TIM_SR_CC1IF);
+	// Request external interrupt
+	pin echo = interfaces_[current_interface_].echo_;
+	exti_set_trigger(echo.number_, EXTI_TRIGGER_RISING);
+	exti_enable_request(echo.number_);
+}
+
+//
+//		Exti interupt
+//
+void hc_sr04_array::extiISR()
+{
+	pin echo = interfaces_[current_interface_].echo_;
+	// Timer will be 0 on a rising edge
+	if(!timer_get_counter(TIM2))
+	{
+		timer_enable_counter(TIM2);
+		exti_set_trigger(echo.number_, EXTI_TRIGGER_FALLING);
+		exti_enable_request(echo.number_);
+	}
+	else // we just got a falling edge mark the time
+	{
+		distance_ticks_[current_interface_] = timer_get_counter(TIM2);
+		exti_disable_request(echo.number_);
+		successful_read_ = true;
+	}
 }
 
 // Static initilization
@@ -140,8 +188,36 @@ hc_sr04_array* hc_sr04_array::single_ = 0;
 const uint32_t hc_sr04_array::TRIG_PULSE_WIDTH = 600;
 const uint16_t hc_sr04_array::TICKS_PER_IFACE = 25;
 
-// None class functions
+// None class functions (mainly isr's)
+
 void tim2_isr(void)
-{
+{	
+	// Clear the flag
+	timer_clear_flag(TIM2, TIM_SR_CC1IF);
 	hc_sr04_array::get_instance()->pulseTimerISR();
+}
+
+void exti0_isr(void)
+{
+	exti_reset_request(EXTI0);
+	hc_sr04_array::get_instance()->extiISR();
+
+}
+
+void exti1_isr(void)
+{
+	exti_reset_request(EXTI1);
+	hc_sr04_array::get_instance()->extiISR();
+}
+
+void exti2_isr(void)
+{
+	exti_reset_request(EXTI2);
+	hc_sr04_array::get_instance()->extiISR();
+}
+
+void exti3_isr(void)
+{
+	exti_reset_request(EXTI3);
+	hc_sr04_array::get_instance()->extiISR();
 }

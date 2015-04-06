@@ -78,7 +78,7 @@ public:		// Functions
 
 // None class functions
 // Increments system ticks
-void sys_tick_handler(void);			// This is also defined as a weak symbol in libopencm3/cm3/nvic.h
+//void sys_tick_handler(void);			// This is also defined as a weak symbol in libopencm3/cm3/nvic.h
 
 // Call back for read functions
 void read_cb_(void* buf, uint16_t len);
