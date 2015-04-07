@@ -108,10 +108,12 @@ const struct usb_interface_descriptor usb::data_iface_[] = {{
 }};
 
 const struct usb_config_descriptor::usb_interface usb::ifaces_[] = {{
+//  .cur_altsetting = NULL,
   .num_altsetting = 1,
   .iface_assoc = NULL,
   .altsetting = comm_iface_,
 }, {
+//  .cur_altsetting = NULL,
   .num_altsetting = 1,
   .iface_assoc = NULL,
   .altsetting = data_iface_,
