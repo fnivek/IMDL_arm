@@ -109,6 +109,7 @@ int main(void)
 	// Enable gpio clock
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_GPIOB);
+	rcc_periph_clock_enable(RCC_SYSCFG);
 
 	// Set GPIO mode
 	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
@@ -116,13 +117,15 @@ int main(void)
 	gpio_clear(GPIOA, GPIO0);
 
 	// Setup external interupts
-	//exti_select_source(EXTI0, GPIOB);
-	//exti_set_trigger(EXTI0, EXTI_TRIGGER_BOTH);
-	//exti_enable_request(EXTI0);
-	EXTI_IMR |= 1;
-	EXTI_FTSR |= 1;
-	SYSCFG_EXTICR(0) = (SYSCFG_EXTICR(0) & ~(uint32_t)0xF) | (uint32_t)0x1;
-
+	exti_select_source(EXTI0, GPIOB);
+	exti_set_trigger(EXTI0, EXTI_TRIGGER_BOTH);
+	exti_enable_request(EXTI0);
+	//EXTI_IMR |= 1;
+	//EXTI_FTSR |= 1;
+	//SYSCFG_EXTICR(0) = (uint32_t)0x1111;//(SYSCFG_EXTICR(0) & ~(uint32_t)0xF) | (uint32_t)0x1;
+	//SYSCFG_EXTICR(1) = (uint32_t)0x1111;
+	//SYSCFG_EXTICR(2) = (uint32_t)0x1111;
+	//SYSCFG_EXTICR(3) = (uint32_t)0x1111;
 
 	// Enable exti interupts
 	nvic_enable_irq(NVIC_EXTI0_IRQ);	
