@@ -81,10 +81,17 @@ void exti0_isr(void)
 
 	uint32_t ticks = timer_get_counter(TIM2);
 
-	if(ticks > 1200)
+	if(ticks < 80000)
 	{
 		// Debug LED
 		gpio_set(GPIOD, GPIO15);
+		gpio_clear(GPIOD, GPIO14);
+	}
+	else
+	{
+		// Debug LED
+		gpio_set(GPIOD, GPIO14);
+		gpio_clear(GPIOD, GPIO15);
 	}
 
 
@@ -104,7 +111,6 @@ void sys_tick_handler(void)
 
 		// Debug LED
 		gpio_set(GPIOD, GPIO12);
-		gpio_clear(GPIOD, GPIO15);
 
 		// Start a new pulse
 		gpio_set(GPIOA, GPIO0);
@@ -152,7 +158,7 @@ int main(void)
 
 	// Setup external interupts
 	exti_select_source(EXTI0, GPIOB);
-	exti_set_trigger(EXTI0, EXTI_TRIGGER_BOTH);
+	exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
 	exti_enable_request(EXTI0);
 
 	// Enable exti interupts
