@@ -4,10 +4,10 @@ board::board():
 	usb_(NULL),
 	heartbeat_led_(GPIOD, GPIO12), orange_led_(GPIOD, GPIO13), 
 	red_led_(GPIOD, GPIO14), blue_led_(GPIOD, GPIO15),
-	sonics_(NULL),
+	sonars_(NULL),
 	system_millis_(0)
 {
-	sonics_ = hc_sr04_array::get_instance();
+	sonars_ = hc_sr04_array::get_instance();
 
 	/* Initilize the clock to: 
 		.pllm = 25,
@@ -59,12 +59,6 @@ board* board::get_instance()
 void board::write_(uint8_t* data, int length)
 {
 	usb_->write(data, length);
-}
-
-// returns milliseconds since start of program
-unsigned long board::time_()
-{
-	return board::system_millis_;
 }
 
 // Updates the hardware
@@ -182,12 +176,32 @@ void board::update1hz_()
 //		Contains sonar out
 void board::update10hz_()
 {
+	// TODO concatenate before sending out
+
+	// Report sonar readings
+	sonar_ticks ticks = sonars_->getSonarTicks();
+	// Fill buffers of data
+	char front[5], back[5], front_right[5], front_left[5];
+	uint32_to_str(front, ticks.front_);							// 4
+	uint32_to_str(back, ticks.back_);							// 8
+	uint32_to_str(front_right, ticks.front_right_);				// 12
+	uint32_to_str(front_left, ticks.front_left_);				// 16
+
+	char buf[28];
+
+	strcpy(buf, "sonar_data\n");								// 27
+	strcat(buf, front);
+	strcat(buf, back);
+	strcat(buf, front_right);
+	strcat(buf, front_left);
+
+	usb_->write(buf, sizeof(buf));
 
 }
 
 void board::update1000hz_()
 {
-	hc_sr04_array::get_instance()->systemTimerISR();
+	sonars_->systemTimerISR();
 }
 
 // Static variable inits

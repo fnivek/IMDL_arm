@@ -5,6 +5,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/cm3/systick.h>
 #include <libopencm3/cm3/nvic.h>		// Required to override syst tick callback
+#include <string.h>
 
 #include "usb.h"
 #include "helpers.h"
@@ -30,7 +31,7 @@ private:	// Vars
 
 	pin heartbeat_led_, orange_led_, red_led_, blue_led_; 
 
-	hc_sr04_array* sonics_;
+	hc_sr04_array* sonars_;
 
 private:	// Functions
 	/* Called when systick fires */
@@ -59,11 +60,8 @@ public:		// Functions
 	// Get the only instance of board
 	static board* get_instance();
 
-	// write data to the connection to ROS
+	// write data to USB
 	void write_(uint8_t* data, int length);
-
-	// returns milliseconds since start of program
-	unsigned long time_();
 
 	void setStatus_(status_ status);
 

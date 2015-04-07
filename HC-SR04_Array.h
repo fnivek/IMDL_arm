@@ -28,6 +28,16 @@
  *				Wrap(i)
  */
 
+// Struct for communicating distances
+typedef struct sonar_ticks
+{
+	uint32_t front_;
+	uint32_t back_;
+	uint32_t front_right_;
+	uint32_t front_left_;
+};
+
+
 class hc_sr04_array
 {
 private:	// Enumerators
@@ -39,8 +49,6 @@ private:	// Enumerators
 		IFACE_FL,
 		NUM_INTERFACES
 	};
-
-
 
 private:	// Structs
 	typedef struct interface
@@ -101,6 +109,8 @@ public:		// Functions
 	void systemTimerISR();
 
 	void extiISR();
+
+	sonar_ticks getSonarTicks();
 };
 
 // None class funcitons

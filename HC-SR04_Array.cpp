@@ -169,6 +169,12 @@ void hc_sr04_array::extiISR()
 	successful_read_ = true;
 }
 
+sonar_ticks hc_sr04_array::getSonarTicks()
+{
+	return sonar_ticks {distance_ticks_[IFACE_F],	distance_ticks_[IFACE_B],
+						distance_ticks_[IFACE_FR], 	distance_ticks_[IFACE_FL]};
+}
+
 // Static initilization
 hc_sr04_array* hc_sr04_array::single_ = 0;
 const uint32_t hc_sr04_array::TRIG_PULSE_WIDTH = 600;
