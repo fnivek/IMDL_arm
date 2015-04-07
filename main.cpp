@@ -51,6 +51,7 @@
 #include <libopencm3/stm32/syscfg.h>
 
 uint32_t system_millis = 0;
+uint32_t last_millis = 0;
 
 // make c++ happy
  void *__dso_handle;
@@ -63,15 +64,33 @@ void tim2_isr(void)
 {	
 	// Clear the flag
 	timer_clear_flag(TIM2, TIM_SR_CC1IF);
+
+	// Debug LED
+	gpio_clear(GPIOD, GPIO12);
+
+	// Clear triger and set request
+	gpio_clear(GPIOA, GPIO0);
+	exti_enable_request(EXTI0);
 }
 
 void exti0_isr(void)
 {
+
 	// Clear the flag
 	exti_reset_request(EXTI0);
 
-	gpio_toggle(GPIOD, GPIO12);
-	//exti_enable_request(EXTI0);
+	uint32_t ticks = timer_get_counter(TIM2);
+
+	if(ticks > 1200)
+	{
+		// Debug LED
+		gpio_set(GPIOD, GPIO15);
+	}
+
+
+	exti_disable_request(EXTI0);
+	// Clear the flag
+	exti_reset_request(EXTI0);
 
 }
 
@@ -79,6 +98,21 @@ void exti0_isr(void)
 void sys_tick_handler(void)
 {
 	system_millis++;
+	if (system_millis - last_millis > 1000)	// One second
+	{
+		last_millis = system_millis;
+
+		// Debug LED
+		gpio_set(GPIOD, GPIO12);
+		gpio_clear(GPIOD, GPIO15);
+
+		// Start a new pulse
+		gpio_set(GPIOA, GPIO0);
+
+		// Reset timer
+		timer_set_counter(TIM2, 0);
+
+	}
 }
 
 /* Set up a timer to create 1mS ticks. */
@@ -120,12 +154,6 @@ int main(void)
 	exti_select_source(EXTI0, GPIOB);
 	exti_set_trigger(EXTI0, EXTI_TRIGGER_BOTH);
 	exti_enable_request(EXTI0);
-	//EXTI_IMR |= 1;
-	//EXTI_FTSR |= 1;
-	//SYSCFG_EXTICR(0) = (uint32_t)0x1111;//(SYSCFG_EXTICR(0) & ~(uint32_t)0xF) | (uint32_t)0x1;
-	//SYSCFG_EXTICR(1) = (uint32_t)0x1111;
-	//SYSCFG_EXTICR(2) = (uint32_t)0x1111;
-	//SYSCFG_EXTICR(3) = (uint32_t)0x1111;
 
 	// Enable exti interupts
 	nvic_enable_irq(NVIC_EXTI0_IRQ);	
