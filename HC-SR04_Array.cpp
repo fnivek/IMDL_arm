@@ -20,6 +20,7 @@ hc_sr04_array::hc_sr04_array():
 	rcc_periph_clock_enable(RCC_GPIOB);
 	rcc_periph_clock_enable(RCC_GPIOC);
 	rcc_periph_clock_enable(RCC_GPIOD);
+	rcc_periph_clock_enable(RCC_SYSCFG);
 
 	// Set GPIO mode
 	for(uint8_t i = 0; i < NUM_INTERFACES; ++i)
@@ -27,12 +28,12 @@ hc_sr04_array::hc_sr04_array():
 		pin trig = interfaces_[i].trig_;
 		pin echo = interfaces_[i].echo_;
 		gpio_mode_setup(trig.port_, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, trig.number_);
-		gpio_mode_setup(echo.port_, GPIO_MODE_AF, GPIO_PUPD_NONE, echo.number_);
+		gpio_mode_setup(echo.port_, GPIO_MODE_INPUT, GPIO_PUPD_NONE, echo.number_);
 		gpio_clear(trig.port_, trig.number_);
 
 		// Setup external interupts
 		exti_select_source(echo.number_, echo.port_);
-		exti_set_trigger(echo.number_, EXTI_TRIGGER_RISING);
+		exti_set_trigger(echo.number_, EXTI_TRIGGER_FALLING);
 	}
 
 	// Enable exti interupts
@@ -116,6 +117,11 @@ void hc_sr04_array::systemTimerISR()
 		{
 			// No read so set to max distance
 			distance_ticks_[current_interface_] = 0xFFFFFFFF;
+			gpio_set(GPIOD, GPIO14);
+		}
+		else
+		{
+			gpio_clear(GPIOD, GPIO14);
 		}
 		successful_read_ = false;
 
@@ -132,9 +138,6 @@ void hc_sr04_array::systemTimerISR()
 
 		// Setupt output compare
 		timer_set_counter(TIM2, 0);
-		timer_enable_oc_output(TIM2, TIM_OC1);
-		// disable the timer
-		timer_enable_counter(TIM2);	
 	}
 
 }
@@ -149,16 +152,8 @@ void hc_sr04_array::pulseTimerISR()
 	pin trig = interfaces_[current_interface_].trig_;
 	gpio_clear(trig.port_, trig.number_);
 
-	// Turn off output compare
-	timer_disable_oc_output(TIM2, TIM_OC1);
-	// disable the timer
-	timer_disable_counter(TIM2);
-	// Reset timer
-	timer_set_counter(TIM2, 0);
-
 	// Request external interrupt
 	pin echo = interfaces_[current_interface_].echo_;
-	exti_set_trigger(echo.number_, EXTI_TRIGGER_RISING);
 	exti_enable_request(echo.number_);
 }
 
@@ -167,20 +162,11 @@ void hc_sr04_array::pulseTimerISR()
 //
 void hc_sr04_array::extiISR()
 {
+	distance_ticks_[current_interface_] = timer_get_counter(TIM2);
 	pin echo = interfaces_[current_interface_].echo_;
-	// Timer will be 0 on a rising edge
-	if(!timer_get_counter(TIM2))
-	{
-		timer_enable_counter(TIM2);
-		exti_set_trigger(echo.number_, EXTI_TRIGGER_FALLING);
-		exti_enable_request(echo.number_);
-	}
-	else // we just got a falling edge mark the time
-	{
-		distance_ticks_[current_interface_] = timer_get_counter(TIM2);
-		exti_disable_request(echo.number_);
-		successful_read_ = true;
-	}
+
+	exti_disable_request(echo.number_);
+	successful_read_ = true;
 }
 
 // Static initilization
