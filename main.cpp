@@ -44,17 +44,13 @@
 // Library includes
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-#include <libopencm3/usb/usbd.h>
-#include <libopencm3/usb/cdc.h>
-#include <libopencm3/cm3/scb.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/timer.h>
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/systick.h>
+#include <libopencm3/stm32/syscfg.h>
 
-// User defined includes
-#include "usb.h"
-#include "motor_controler.h"
-#include "helpers.h"
-#include "board.h"
-
- #define MAX_SPEED 0.70
+uint32_t system_millis = 0;
 
 // make c++ happy
  void *__dso_handle;
@@ -62,113 +58,103 @@
 int __cxa_atexit(void (*destructor) (void *), void *arg, void *dso);
 void __cxa_finalize(void *f);
 
-// Forward declerations
-//void simple_obstical_avoidance();
-void forward();
-void stop();
-void turn_right();
-void turn_left();
 
-// Initilize motor controller
-pin m1_in1 = {GPIOC, GPIO10};
-pin m1_in2 = {GPIOA, GPIO15};
-pin m1_pwm = {GPIOA, GPIO8};
-pin m2_in1 = {GPIOC, GPIO11};
-pin m2_in2 = {GPIOC, GPIO12};
-pin m2_pwm = {GPIOA, GPIO10};
-motor_controler motors(m1_in1, m1_in2, m1_pwm,
-					   m2_in1, m2_in2, m2_pwm);
+void tim2_isr(void)
+{	
+	// Clear the flag
+	timer_clear_flag(TIM2, TIM_SR_CC1IF);
+}
+
+void exti0_isr(void)
+{
+	// Clear the flag
+	exti_reset_request(EXTI0);
+
+	gpio_toggle(GPIOD, GPIO12);
+	//exti_enable_request(EXTI0);
+
+}
+
+/* Called when systick fires */
+void sys_tick_handler(void)
+{
+	system_millis++;
+}
+
+/* Set up a timer to create 1mS ticks. */
+void systick_setup_(void)
+{
+	/* clock rate / 1000 to get 1mS interrupt rate */
+	systick_set_reload(120000);
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_counter_enable();
+	/* this done last */
+	systick_interrupt_enable();
+}
+
 
 int main(void)
 {
+	// Init
+	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
 
-	board* bd = board::get_instance();
 
-	motors.init();
-	motor_controler::direction current_dir = motor_controler::FORWARD;
-	motors.set_m1_dir(current_dir);
-	motors.set_m2_dir(current_dir);
+	systick_setup_();
 
-	stop();
+	// Setup status LEDs
+	rcc_periph_clock_enable(RCC_GPIOD);		// TODO: case statment to activate correct gpio clock
+	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
+
+	// Setup GPIO
+	// Enable gpio clock
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOB);
+
+	// Set GPIO mode
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
+	gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0);				// This line was set to alternate function!!!!!!
+	gpio_clear(GPIOA, GPIO0);
+
+	// Setup external interupts
+	//exti_select_source(EXTI0, GPIOB);
+	//exti_set_trigger(EXTI0, EXTI_TRIGGER_BOTH);
+	//exti_enable_request(EXTI0);
+	EXTI_IMR |= 1;
+	EXTI_FTSR |= 1;
+	SYSCFG_EXTICR(0) = (SYSCFG_EXTICR(0) & ~0xF0)| 0x10;
+
+
+	// Enable exti interupts
+	nvic_enable_irq(NVIC_EXTI0_IRQ);	
+
+	// Setup timer
+	// Step 1 enable peripherial clock
+	rcc_periph_clock_enable(RCC_TIM2);
+	// Step 2 reset peripherial:
+	timer_reset(TIM2);
+	// Step 3 set mode div 1 since 32 bits wide, count up, 
+	timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE,
+               TIM_CR1_DIR_UP);
+	// Step 4 set the period to max
+	timer_set_period(TIM2, 0xFFFFFFFF);
+	// Step x set output compare mode
+	timer_set_oc_mode(TIM2, TIM_OC1, TIM_OCM_FROZEN);
+	// Step x set output compare value to 10 uS
+	timer_set_oc_value(TIM2, TIM_OC1, 600);
+	// Step 5 Disable outputs
+	timer_enable_oc_output(TIM2, TIM_OC1);
+	// Reset timer
+	timer_set_counter(TIM2, 0);
+	// Step 5 enable the timer
+	timer_enable_counter(TIM2);
+	// Step 6 enable timer 2 interrupts
+	timer_enable_irq(TIM2, TIM_DIER_CC1IE);
+	nvic_enable_irq(NVIC_TIM2_IRQ);
+
+	// Send first pulse
+	gpio_set(GPIOA, GPIO0);
 
 	while (1) {
-		bd->hardwareUpdate_();
 
-		//simple_obstical_avoidance();
 	}
 }
-
-void turn_right()
-{
-	motors.set_m2_dir(motor_controler::REVERSE);
-	motors.set_m1_dir(motor_controler::FORWARD);
-	motors.set_m1_duty(MAX_SPEED);
-	motors.set_m2_duty(MAX_SPEED);
-}
-
-void turn_left()
-{
-	motors.set_m1_dir(motor_controler::REVERSE);
-	motors.set_m2_dir(motor_controler::FORWARD);
-	motors.set_m1_duty(MAX_SPEED);
-	motors.set_m2_duty(MAX_SPEED);
-}
-
-void stop()
-{
-	motors.set_m1_dir(motor_controler::FREE_SPIN_H);
-	motors.set_m2_dir(motor_controler::FREE_SPIN_H);
-	motors.set_m1_duty(0);
-	motors.set_m2_duty(0);
-}
-
-void forward()
-{
-	motors.set_m1_dir(motor_controler::FORWARD);
-	motors.set_m2_dir(motor_controler::FORWARD);
-	motors.set_m1_duty(MAX_SPEED);
-	motors.set_m2_duty(MAX_SPEED);
-}
-
-/*
-void simple_obstical_avoidance()
-{
-	gpio_clear(GPIOD, GPIO12 |GPIO13 | GPIO14 | GPIO15);
-
-	// Go forward till we find something
-	forward();
-	while(pingy.get_distance() > 80);
-
-	gpio_set(GPIOD, GPIO12);
-
-	// Turn left
-	volatile uint32_t debug = timer_get_counter(TIM1);
-	if((debug >> 1) & 0x1)
-	{
-		turn_left();
-	}
-	else
-	{
-		turn_right();
-	}
-
-	while(pingy.get_distance() < 120);
-
-	gpio_set(GPIOD, GPIO13);
-
-	switch((timer_get_counter(TIM1) >> 1) & 0x3)
-	{
-	case 0:
-		//msleep(100);
-	case 1:
-		//msleep(100);
-	case 2:
-		//msleep(100);
-	case 3:
-		//msleep(100);
-	defualt:
-		//msleep(100);
-	}
-
-}
-*/

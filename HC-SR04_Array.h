@@ -82,6 +82,9 @@ private: 	//Vars
 
 	// Did the last sonar return a value
 	bool successful_read_;
+
+	// Did we already stop the pulse
+	bool stoped_pulse_;
 	
 private:	// functions
 
@@ -100,7 +103,7 @@ public:		// Functions
 
 	void systemTimerISR();
 
-	void extiISR();
+	void extiISR(uint32_t caller_id);
 };
 
 // None class funcitons

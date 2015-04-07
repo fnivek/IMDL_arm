@@ -9,7 +9,8 @@ hc_sr04_array::hc_sr04_array():
 				 interface(GPIOA, GPIO3, GPIOB, GPIO3)
 				},
 	distance_ticks_(),
-	successful_read_(false)
+	successful_read_(false),
+	stoped_pulse_(false)
 
 {
 
@@ -32,7 +33,7 @@ hc_sr04_array::hc_sr04_array():
 
 		// Setup external interupts
 		exti_select_source(echo.number_, echo.port_);
-		exti_set_trigger(echo.number_, EXTI_TRIGGER_RISING);
+		exti_set_trigger(echo.number_, EXTI_TRIGGER_FALLING);
 	}
 
 	// Enable exti interupts
@@ -109,7 +110,7 @@ void hc_sr04_array::systemTimerISR()
 		current_ticks_ = 0;
 
 		// Cancle any pending exti request
-		exti_disable_request(interfaces_[current_interface_].echo_.number_);
+		//exti_disable_request(interfaces_[current_interface_].echo_.number_);
 
 		//Check if last read didn't return
 		if(!successful_read_)
@@ -133,8 +134,12 @@ void hc_sr04_array::systemTimerISR()
 		// Setupt output compare
 		timer_set_counter(TIM2, 0);
 		timer_enable_oc_output(TIM2, TIM_OC1);
-		// disable the timer
+		// enable the timer
 		timer_enable_counter(TIM2);	
+
+		//pin echo = interfaces_[current_interface_].echo_;
+		//exti_set_trigger(echo.number_, EXTI_TRIGGER_RISING);
+		//exti_enable_request(echo.number_);
 	}
 
 }
@@ -144,49 +149,79 @@ void hc_sr04_array::systemTimerISR()
 //
 void hc_sr04_array::pulseTimerISR()
 {
+	if(!stoped_pulse_)
+	{
+		stoped_pulse_ = true;
+		// Clear the triger pin
+		pin trig = interfaces_[current_interface_].trig_;
+		gpio_clear(trig.port_, trig.number_);
 
-	// Clear the triger pin
-	pin trig = interfaces_[current_interface_].trig_;
-	gpio_clear(trig.port_, trig.number_);
+		// Turn off output compare
+		//timer_disable_oc_output(TIM2, TIM_OC1);
+		// disable the timer
+		//timer_disable_counter(TIM2);
+		// Reset timer
+		timer_set_counter(TIM2, 0);
 
-	// Turn off output compare
-	timer_disable_oc_output(TIM2, TIM_OC1);
-	// disable the timer
-	timer_disable_counter(TIM2);
-	// Reset timer
-	timer_set_counter(TIM2, 0);
+		// Request external interrupt
+		pin echo = interfaces_[current_interface_].echo_;
 
-	// Request external interrupt
-	pin echo = interfaces_[current_interface_].echo_;
-	exti_set_trigger(echo.number_, EXTI_TRIGGER_RISING);
-	exti_enable_request(echo.number_);
+		//exti_enable_request(echo.number_);
+	}
+	else
+	{
+		stoped_pulse_ = false;
+		timer_disable_oc_output(TIM2, TIM_OC1);
+		pin echo = interfaces_[current_interface_].echo_;
+		exti_reset_request(echo.number_);
+		exti_enable_request(echo.number_);
+	}
 }
 
 //
 //		Exti interupt
 //
-void hc_sr04_array::extiISR()
+void hc_sr04_array::extiISR(uint32_t caller_id)
 {
+	uint32_t ticks = timer_get_counter(TIM2);
+
 	pin echo = interfaces_[current_interface_].echo_;
-	// Timer will be 0 on a rising edge
-	if(!timer_get_counter(TIM2))
-	{
-		timer_enable_counter(TIM2);
-		exti_set_trigger(echo.number_, EXTI_TRIGGER_FALLING);
-		exti_enable_request(echo.number_);
+	// Make sure this isn't a glitch on another line
+	if(echo.number_ != caller_id)
+	{	
+		return;
 	}
-	else // we just got a falling edge mark the time
+
+	if(ticks > TRIG_PULSE_WIDTH)
 	{
-		distance_ticks_[current_interface_] = timer_get_counter(TIM2);
+		gpio_set(GPIOD, GPIO15);
+		gpio_clear(GPIOD, GPIO14);
+	}
+	else
+	{
+		gpio_set(GPIOD, GPIO14);
+		gpio_clear(GPIOD, GPIO15);
+	}
+
+	// Timer will be 0 on a rising edge
+	//if(ticks == 0)
+	//{
+	//	timer_enable_counter(TIM2);
+	//	exti_set_trigger(echo.number_, EXTI_TRIGGER_FALLING);
+	//	exti_enable_request(echo.number_);
+	//}
+	//else // we just got a falling edge mark the time
+	//{
+		distance_ticks_[current_interface_] = ticks;
 		exti_disable_request(echo.number_);
 		successful_read_ = true;
-	}
+	//}
 }
 
 // Static initilization
 hc_sr04_array* hc_sr04_array::single_ = 0;
 const uint32_t hc_sr04_array::TRIG_PULSE_WIDTH = 600;
-const uint16_t hc_sr04_array::TICKS_PER_IFACE = 25;
+const uint16_t hc_sr04_array::TICKS_PER_IFACE = 250;
 
 // None class functions (mainly isr's)
 
@@ -200,24 +235,24 @@ void tim2_isr(void)
 void exti0_isr(void)
 {
 	exti_reset_request(EXTI0);
-	hc_sr04_array::get_instance()->extiISR();
+	hc_sr04_array::get_instance()->extiISR(1 << 0);
 
 }
 
 void exti1_isr(void)
 {
 	exti_reset_request(EXTI1);
-	hc_sr04_array::get_instance()->extiISR();
+	hc_sr04_array::get_instance()->extiISR(1 << 1);
 }
 
 void exti2_isr(void)
 {
 	exti_reset_request(EXTI2);
-	hc_sr04_array::get_instance()->extiISR();
+	hc_sr04_array::get_instance()->extiISR(1 << 2);
 }
 
 void exti3_isr(void)
 {
 	exti_reset_request(EXTI3);
-	hc_sr04_array::get_instance()->extiISR();
+	hc_sr04_array::get_instance()->extiISR(1 << 3);
 }
