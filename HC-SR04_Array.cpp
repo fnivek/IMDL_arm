@@ -104,8 +104,8 @@ void hc_sr04_array::systemTimerISR()
 {
 	++current_ticks_;
 
-	// Wait for TICKS_PER_IFACE before switching to next sonar
-	if(current_ticks_ >= TICKS_PER_IFACE)
+	// Wait for MILLIS_PER_IFACE before switching to next sonar
+	if(current_ticks_ >= MILLIS_PER_IFACE)
 	{
 		current_ticks_ = 0;
 
@@ -172,7 +172,7 @@ void hc_sr04_array::extiISR()
 // Static initilization
 hc_sr04_array* hc_sr04_array::single_ = 0;
 const uint32_t hc_sr04_array::TRIG_PULSE_WIDTH = 600;
-const uint16_t hc_sr04_array::TICKS_PER_IFACE = 25;
+const uint16_t hc_sr04_array::MILLIS_PER_IFACE = 25;
 
 // None class functions (mainly isr's)
 

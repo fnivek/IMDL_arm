@@ -2,10 +2,10 @@
 
 board::board():
 	usb_(NULL),
-	last_time_(0),
 	heartbeat_led_(GPIOD, GPIO12), orange_led_(GPIOD, GPIO13), 
 	red_led_(GPIOD, GPIO14), blue_led_(GPIOD, GPIO15),
-	sonics_(NULL)
+	sonics_(NULL),
+	system_millis_(0)
 {
 	sonics_ = hc_sr04_array::get_instance();
 
@@ -71,13 +71,6 @@ unsigned long board::time_()
 void board::hardwareUpdate_()
 {
 	usb_->poll();
-
-	// Heartbeat every second
-	if(board::system_millis_ - last_time_ > 1000)
-	{
-		beat_();
-		last_time_ = board::system_millis_;
-	}
 }
 
 /* monotonically increasing number of milliseconds from reset
@@ -152,8 +145,25 @@ void board::beat_()
 /* Called when systick fires */
 void sys_tick_handler(void)
 {
-	board::system_millis_++;
-	hc_sr04_array::get_instance()->systemTimerISR();
+	board* bd = board::get_instance();
+	bd->system_millis_++;
+
+	// 1000 Hz updates
+	bd->update1000hz_();
+
+	// 100 Hz updates
+
+	// 10 Hz updates
+	if(!(bd->system_millis_ % 100))
+	{
+		bd->update10hz_();
+	}
+
+	// 1 Hz updates
+	if(!(bd->system_millis_ % 1000))
+	{
+		bd->update1hz_();
+	}
 }
 
 void read_cb_(void* buf, uint16_t len)
@@ -161,6 +171,24 @@ void read_cb_(void* buf, uint16_t len)
 	
 }
 
+// 1 Hz update function
+//		Contains heart beat
+void board::update1hz_()
+{
+	beat_();
+}
+
+// 10 Hz update function
+//		Contains sonar out
+void board::update10hz_()
+{
+
+}
+
+void board::update1000hz_()
+{
+	hc_sr04_array::get_instance()->systemTimerISR();
+}
+
 // Static variable inits
-volatile uint32_t board::system_millis_ = 0;
 board* board::single_ = NULL;

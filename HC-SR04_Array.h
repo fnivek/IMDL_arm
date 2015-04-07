@@ -64,7 +64,7 @@ private:	// Structs
 
 private:	// Consts
 	static const uint32_t TRIG_PULSE_WIDTH;
-	static const uint16_t TICKS_PER_IFACE;
+	static const uint16_t MILLIS_PER_IFACE;
 
 private: 	//Vars
 	static hc_sr04_array* single_;

@@ -28,8 +28,6 @@ public:		// Enumerators
 private:	// Vars
 	usb* usb_;
 
-	uint32_t last_time_;
-
 	pin heartbeat_led_, orange_led_, red_led_, blue_led_; 
 
 	hc_sr04_array* sonics_;
@@ -55,7 +53,7 @@ public:		//Vars
 	/* monotonically increasing number of milliseconds from reset
 	 * overflows every 49 days if you're wondering
 	 */
-	static volatile uint32_t system_millis_;
+	volatile uint32_t system_millis_;
 
 public:		// Functions
 	// Get the only instance of board
@@ -67,12 +65,26 @@ public:		// Functions
 	// returns milliseconds since start of program
 	unsigned long time_();
 
-	void hardwareUpdate_();
-
 	void setStatus_(status_ status);
 
 	// Toggle the heart beat led
 	void beat_();
+
+	// Updates as often as possible
+	//		Contains USB poll
+	void hardwareUpdate_();
+
+	// 1 Hz update function
+	//		Contains heart beat
+	void update1hz_();
+
+	// 10 Hz update function
+	//		Contains sonar out
+	void update10hz_();
+
+	// 1000 Hz update function
+	//		Contains sonar update
+	void update1000hz_();
 
 };
 
