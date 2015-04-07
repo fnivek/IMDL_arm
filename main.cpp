@@ -121,7 +121,7 @@ int main(void)
 	//exti_enable_request(EXTI0);
 	EXTI_IMR |= 1;
 	EXTI_FTSR |= 1;
-	SYSCFG_EXTICR(0) = (SYSCFG_EXTICR(0) & ~0xF0)| 0x10;
+	SYSCFG_EXTICR(0) = (SYSCFG_EXTICR(0) & ~(uint32_t)0xF) | (uint32_t)0x1;
 
 
 	// Enable exti interupts
