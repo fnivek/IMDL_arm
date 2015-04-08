@@ -179,11 +179,12 @@ void read_cb_(char* buf, uint16_t len)
 	// Found a match to the left
 	if(left != NULL)
 	{
-		bd->setStatus_(board::IDK_1);
+		// Read in the value 
+		float* duty = reinterpret_cast<float*>(&left[9]);
 	}
 	else if(right != NULL)
 	{
-		bd->setStatus_(board::IDK_2);
+		float* duty = reinterpret_cast<float*>(&right[10]);
 	}
 
 }
