@@ -116,7 +116,7 @@ void hc_sr04_array::systemTimerISR()
 		if(!successful_read_)
 		{
 			// No read so set to max distance
-			distance_ticks_[current_interface_] = 0xFFFFFFFF;
+			distance_ticks_[current_interface_] = timer_get_counter(TIM2);
 		}
 		successful_read_ = false;
 

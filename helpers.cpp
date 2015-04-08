@@ -7,5 +7,4 @@ void uint32_to_str(char* buf, uint32_t data)
 		buf[i] = (char)(data & (uint32_t)0xFF);
 		data >>= 8;
 	}
-	buf[4] = '\0';
 }

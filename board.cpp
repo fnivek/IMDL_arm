@@ -181,20 +181,29 @@ void board::update10hz_()
 	// Report sonar readings
 	sonar_ticks ticks = sonars_->getSonarTicks();
 	// Fill buffers of data
-	char front[5], back[5], front_right[5], front_left[5];
+	char front[4], back[4], front_right[4], front_left[4];
 	uint32_to_str(front, ticks.front_);							// 4
 	uint32_to_str(back, ticks.back_);							// 8
 	uint32_to_str(front_right, ticks.front_right_);				// 12
 	uint32_to_str(front_left, ticks.front_left_);				// 16
 
-	char buf[28];
+	// Ugh this is nasty...
+	char buf[] = { 's', 'o', 'n', 'a', 'r', '_', 'd', 'a', 't', 'a', 
+		front[0], 			front[1], 		front[2], 		front[3],
+		back[0], 			back[1], 		back[2], 		back[3],
+		front_right[0], 	front_right[1], front_right[2], front_right[3],
+		front_left[0], 		front_left[1], 	front_left[2], 	front_left[3]
+				 };
 
-	strcpy(buf, "sonar_data\n");								// 27
+	// Strcat stops at /0 which happens for any number who has two hex 0s in a row!!!!
+	/*strcpy(buf, "sonar_data");									// 26
+
 	strcat(buf, front);
 	strcat(buf, back);
 	strcat(buf, front_right);
-	strcat(buf, front_left);
-
+	strcat(buf, front_left);									// 27 '\0'
+*/
+	
 	usb_->write(buf, sizeof(buf));
 
 }
