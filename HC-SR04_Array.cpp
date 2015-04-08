@@ -117,11 +117,6 @@ void hc_sr04_array::systemTimerISR()
 		{
 			// No read so set to max distance
 			distance_ticks_[current_interface_] = 0xFFFFFFFF;
-			gpio_set(GPIOD, GPIO14);
-		}
-		else
-		{
-			gpio_clear(GPIOD, GPIO14);
 		}
 		successful_read_ = false;
 

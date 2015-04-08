@@ -156,6 +156,7 @@ void usb::cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	char buf[64];
 	uint8_t len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
 
+	isConnected_ = true;
 
 	if(usb::read_cb_ != NULL)
 	{
@@ -263,7 +264,14 @@ void usb::poll()
 
 uint16_t usb::write(const void* data, uint16_t length)
 {
-	return usbd_ep_write_packet(usb_device_, 0x82, data, length);
+	if(isConnected_)
+	{
+		return usbd_ep_write_packet(usb_device_, 0x82, data, length);
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void usb::setReadCallback(void (*cb)(void*, uint16_t))
@@ -278,5 +286,6 @@ void usb::setReadCallback(void (*cb)(void*, uint16_t))
 	}
 }
 
+bool usb::isConnected_ = false;
 void (*usb::read_cb_)(void*, uint16_t) = NULL;
 usb* usb::single_ = NULL;

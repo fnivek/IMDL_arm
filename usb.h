@@ -54,6 +54,9 @@ private:	// Vars
 	// Singelton instance
 	static usb* single_;
 
+	// Has the usb recieved any data yet
+	static bool isConnected_;
+
 
 private:	// Functions
 	static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue);
