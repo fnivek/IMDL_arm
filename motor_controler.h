@@ -29,12 +29,12 @@ class motor_controler
 private:	// Enums
 	enum pin_number
 	{
-		M1_IN1,
-		M1_IN2,
-		M1_PWM,
-		M2_IN1,
-		M2_IN2,
-		M2_PWM,
+		LEFT_IN1,
+		LEFT_IN2,
+		LEFT_PWM,
+		RIGHT_IN1,
+		RIGHT_IN2,
+		RIGHT_PWM,
 		NUMBER_OF_PINS
 	};
 
@@ -68,13 +68,13 @@ private:	// Functions
 public:		// Functions
 	// Get the only instance of motor controller
 	static motor_controler* get_instance();
-	
-	void set_m1_dir(direction dir);
-	void set_m2_dir(direction dir);
+
+	void setLeftDir(direction dir);
+	void setRightDir(direction dir);
 
 	// Percent is 0 to 1
-	void set_m1_duty(float percent);
-	void set_m2_duty(float percent);
+	void setLeftDuty(float percent);
+	void setRightDuty(float percent);
 
 	void stop();
 

@@ -61,7 +61,7 @@ motor_controler::motor_controler():
 		gpio_set_output_options(pins_[i].port_, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, pins_[i].number_);
 
 		// PWM signals must be set up for pwm output otherwise set the pin to be an output
-		if(i == M1_PWM || i == M2_PWM)
+		if(i == LEFT_PWM || i == RIGHT_PWM)
 		{
 			// Set to timer one output
 			gpio_mode_setup(pins_[i].port_, GPIO_MODE_AF, GPIO_PUPD_NONE, pins_[i].number_);
@@ -105,64 +105,64 @@ motor_controler::motor_controler():
 	timer_enable_counter(TIM1);
 }
 
-void motor_controler::set_m1_dir(direction dir)
+void motor_controler::setLeftDir(direction dir)
 {
 	switch(dir)
 	{
 	case FORWARD:
-		gpio_set(pins_[M1_IN1].port_, pins_[M1_IN1].number_);
-		gpio_clear(pins_[M1_IN2].port_, pins_[M1_IN2].number_);
+		gpio_set(pins_[LEFT_IN1].port_, pins_[LEFT_IN1].number_);
+		gpio_clear(pins_[LEFT_IN2].port_, pins_[LEFT_IN2].number_);
 		break;
 
 	case REVERSE:
-		gpio_clear(pins_[M1_IN1].port_, pins_[M1_IN1].number_);
-		gpio_set(pins_[M1_IN2].port_, pins_[M1_IN2].number_);
+		gpio_clear(pins_[LEFT_IN1].port_, pins_[LEFT_IN1].number_);
+		gpio_set(pins_[LEFT_IN2].port_, pins_[LEFT_IN2].number_);
 		break;
 
 	case FREE_SPIN_H:
-		gpio_set(pins_[M1_IN1].port_, pins_[M1_IN1].number_);
-		gpio_set(pins_[M1_IN2].port_, pins_[M1_IN2].number_);
+		gpio_set(pins_[LEFT_IN1].port_, pins_[LEFT_IN1].number_);
+		gpio_set(pins_[LEFT_IN2].port_, pins_[LEFT_IN2].number_);
 		break;
 
 	case FREE_SPIN_L:
 	default:
-		gpio_clear(pins_[M1_IN1].port_, pins_[M1_IN1].number_);
-		gpio_clear(pins_[M1_IN2].port_, pins_[M1_IN2].number_);
+		gpio_clear(pins_[LEFT_IN1].port_, pins_[LEFT_IN1].number_);
+		gpio_clear(pins_[LEFT_IN2].port_, pins_[LEFT_IN2].number_);
 		break;
 
 	
 	}
 }
 
-void motor_controler::set_m2_dir(direction dir)
+void motor_controler::setRightDir(direction dir)
 {
 	switch(dir)
 	{
 	case FORWARD:
-		gpio_set(pins_[M2_IN2].port_, pins_[M2_IN2].number_);
-		gpio_clear(pins_[M2_IN1].port_, pins_[M2_IN1].number_);
+		gpio_set(pins_[RIGHT_IN2].port_, pins_[RIGHT_IN2].number_);
+		gpio_clear(pins_[RIGHT_IN1].port_, pins_[RIGHT_IN1].number_);
 		break;
 
 	case REVERSE:
-		gpio_clear(pins_[M2_IN2].port_, pins_[M2_IN2].number_);
-		gpio_set(pins_[M2_IN1].port_, pins_[M2_IN1].number_);
+		gpio_clear(pins_[RIGHT_IN2].port_, pins_[RIGHT_IN2].number_);
+		gpio_set(pins_[RIGHT_IN1].port_, pins_[RIGHT_IN1].number_);
 		break;
 
 	case FREE_SPIN_H:
-		gpio_set(pins_[M2_IN2].port_, pins_[M2_IN2].number_);
-		gpio_set(pins_[M2_IN1].port_, pins_[M2_IN1].number_);
+		gpio_set(pins_[RIGHT_IN2].port_, pins_[RIGHT_IN2].number_);
+		gpio_set(pins_[RIGHT_IN1].port_, pins_[RIGHT_IN1].number_);
 		break;
 
 	case FREE_SPIN_L:
 	default:
-		gpio_clear(pins_[M2_IN2].port_, pins_[M2_IN2].number_);
-		gpio_clear(pins_[M2_IN1].port_, pins_[M2_IN1].number_);
+		gpio_clear(pins_[RIGHT_IN2].port_, pins_[RIGHT_IN2].number_);
+		gpio_clear(pins_[RIGHT_IN1].port_, pins_[RIGHT_IN1].number_);
 		break;
 
 	
 	}
 }
-void motor_controler::set_m1_duty(float percent)
+void motor_controler::setLeftDuty(float percent)
 {
 	if(percent >=1.0f)
 	{
@@ -178,7 +178,7 @@ void motor_controler::set_m1_duty(float percent)
 	}
 }
 
-void motor_controler::set_m2_duty(float percent)
+void motor_controler::setRightDuty(float percent)
 {
 	if(percent >=1.0f)
 	{
@@ -214,10 +214,10 @@ motor_controler* motor_controler::get_instance()
 
 void motor_controler::stop()
 {
-	set_m1_dir(FREE_SPIN_H);
-	set_m2_dir(FREE_SPIN_H);
-	set_m1_duty(0);
-	set_m2_duty(0);
+	setLeftDir(FREE_SPIN_H);
+	setRightDir(FREE_SPIN_H);
+	setLeftDuty(0);
+	setRightDuty(0);
 }
 
 // Static vars
