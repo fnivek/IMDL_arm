@@ -56,6 +56,10 @@ public:		//Vars
 	 */
 	volatile uint32_t system_millis_;
 
+	// Identifiers
+	static const char left_duty_id[];
+	static const char right_duty_id[];
+
 public:		// Functions
 	// Get the only instance of board
 	static board* get_instance();
@@ -91,6 +95,6 @@ public:		// Functions
 //void sys_tick_handler(void);			// This is also defined as a weak symbol in libopencm3/cm3/nvic.h
 
 // Call back for read functions
-void read_cb_(void* buf, uint16_t len);
+void read_cb_(char* buf, uint16_t len);
 
 #endif

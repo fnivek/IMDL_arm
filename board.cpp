@@ -160,9 +160,32 @@ void sys_tick_handler(void)
 	}
 }
 
-void read_cb_(void* buf, uint16_t len)
+void read_cb_(char* buf, uint16_t len)
 {
-	
+	if(len == 64)
+	{
+		// TODO: deal with strings of length 64
+		return;
+	}
+
+	// Add a null terminator to the end to work with string.h
+	buf[len] = '\0';
+
+	// Search for left and right
+	char* left = strstr(buf, board::left_duty_id);
+	char* right = strstr(buf, board::right_duty_id);
+
+	board* bd = board::get_instance();
+	// Found a match to the left
+	if(left != NULL)
+	{
+		bd->setStatus_(board::IDK_1);
+	}
+	else if(right != NULL)
+	{
+		bd->setStatus_(board::IDK_2);
+	}
+
 }
 
 // 1 Hz update function
@@ -180,29 +203,17 @@ void board::update10hz_()
 
 	// Report sonar readings
 	sonar_ticks ticks = sonars_->getSonarTicks();
+
 	// Fill buffers of data
-	char front[4], back[4], front_right[4], front_left[4];
-	uint32_to_str(front, ticks.front_);							// 4
-	uint32_to_str(back, ticks.back_);							// 8
-	uint32_to_str(front_right, ticks.front_right_);				// 12
-	uint32_to_str(front_left, ticks.front_left_);				// 16
+	char* test = reinterpret_cast<char*>(&ticks);
 
 	// Ugh this is nasty...
 	char buf[] = { 's', 'o', 'n', 'a', 'r', '_', 'd', 'a', 't', 'a', 
-		front[0], 			front[1], 		front[2], 		front[3],
-		back[0], 			back[1], 		back[2], 		back[3],
-		front_right[0], 	front_right[1], front_right[2], front_right[3],
-		front_left[0], 		front_left[1], 	front_left[2], 	front_left[3]
+		test[0], 			test[1], 		test[2], 		test[3],
+		test[4], 			test[5], 		test[6], 		test[7],
+		test[8], 			test[9], 		test[10], 		test[11],
+		test[12], 			test[13], 		test[14], 		test[15]
 				 };
-
-	// Strcat stops at /0 which happens for any number who has two hex 0s in a row!!!!
-	/*strcpy(buf, "sonar_data");									// 26
-
-	strcat(buf, front);
-	strcat(buf, back);
-	strcat(buf, front_right);
-	strcat(buf, front_left);									// 27 '\0'
-*/
 	
 	usb_->write(buf, sizeof(buf));
 
@@ -215,3 +226,5 @@ void board::update1000hz_()
 
 // Static variable inits
 board* board::single_ = NULL;
+const char board::left_duty_id[] = "left_duty";
+const char board::right_duty_id[] = "right_duty";

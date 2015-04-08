@@ -22,10 +22,4 @@ typedef struct pin
 
 } pin;
 
-/*
- * Convert a uint32 to big endian c string
- *		buf must be exactly 5 chars long (5th char is '\0')
- */
-void uint32_to_str(char* buf, uint32_t data);
-
 #endif

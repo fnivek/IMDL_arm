@@ -49,7 +49,7 @@ public:		// Vars
 
 private:	// Vars
 	// Read callback
-	static void (*read_cb_)(void*, uint16_t);
+	static void (*read_cb_)(char*, uint16_t);
 
 	// Singelton instance
 	static usb* single_;
@@ -90,7 +90,7 @@ public:
 
 	// Set or update the read callback
 	//		Set to NULL for no callback
-	void setReadCallback(void (*cb)(void*, uint16_t));
+	void setReadCallback(void (*cb)(char*, uint16_t));
 };
 
 #endif

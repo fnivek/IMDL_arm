@@ -274,7 +274,7 @@ uint16_t usb::write(const void* data, uint16_t length)
 	}
 }
 
-void usb::setReadCallback(void (*cb)(void*, uint16_t))
+void usb::setReadCallback(void (*cb)(char*, uint16_t))
 {
 	if(cb == NULL)
 	{
@@ -287,5 +287,5 @@ void usb::setReadCallback(void (*cb)(void*, uint16_t))
 }
 
 bool usb::isConnected_ = false;
-void (*usb::read_cb_)(void*, uint16_t) = NULL;
+void (*usb::read_cb_)(char*, uint16_t) = NULL;
 usb* usb::single_ = NULL;
