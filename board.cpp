@@ -195,12 +195,12 @@ void read_cb_(char* buf, uint16_t len)
 		if(duty > 0)
 		{
 			bd->motors_->setLeftDir(motor_controler::FORWARD);
-			bd->motors_->setLeftDuty(duty * -1);
+			bd->motors_->setLeftDuty(duty);
 		}
 		else if (duty < 0)
 		{
 			bd->motors_->setLeftDir(motor_controler::REVERSE);
-			bd->motors_->setLeftDuty(duty);
+			bd->motors_->setLeftDuty(duty * -1);
 		}
 
 	}
@@ -214,12 +214,12 @@ void read_cb_(char* buf, uint16_t len)
 		if(duty > 0)
 		{
 			bd->motors_->setRightDir(motor_controler::FORWARD);
-			bd->motors_->setRightDuty(duty * -1);
+			bd->motors_->setRightDuty(duty);
 		}
 		else if (duty < 0)
 		{
 			bd->motors_->setRightDir(motor_controler::REVERSE);
-			bd->motors_->setRightDuty(duty);
+			bd->motors_->setRightDuty(duty * -1);
 		}
 	}
 }
