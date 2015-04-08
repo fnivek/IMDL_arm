@@ -1,9 +1,6 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
-// TODO find where standard uint come from
-#include <libopencm3/stm32/gpio.h>
-
 /*
  * Structure for a specific pin
  */

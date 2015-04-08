@@ -10,6 +10,7 @@
 #include "usb.h"
 #include "helpers.h"
 #include "HC-SR04_Array.h"
+#include "motor_controler.h"
 
 class board
 {
@@ -32,6 +33,8 @@ private:	// Vars
 	pin heartbeat_led_, orange_led_, red_led_, blue_led_; 
 
 	hc_sr04_array* sonars_;
+
+	motor_controler* motors_;
 
 private:	// Functions
 	/* Called when systick fires */

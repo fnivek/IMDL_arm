@@ -8,25 +8,18 @@
  *			pin_in2 ->		Pin specifier for in2
  *			pin_pwm ->		pin specifier for pwm signal
  */
-motor_controler::motor_controler(pin m1_in1, pin m1_in2, pin m1_pwm,
-		pin m2_in1, pin m2_in2, pin m2_pwm)
-{
-	// Initilize member vars
-	// TODO eroror checking
-	//		TIM1_CH1 exist only on ~PA7, PA8, ~PB13, ~PE8, PE9
-	//		TIM1_CH2 exist only on PA9, ~PB0, ~PB14, ~PE10, PE11
-	pins_[M1_IN1] = m1_in1;
-	pins_[M1_IN2] = m1_in2;
-	pins_[M1_PWM] = m1_pwm;
+ // Initilize motor controller
 
-	pins_[M2_IN1] = m2_in1;
-	pins_[M2_IN2] = m2_in2;
-	pins_[M2_PWM] = m2_pwm;
-}
-
-void motor_controler::init(void)
+motor_controler::motor_controler():
+	pins_{	{GPIOC, GPIO10},
+			{GPIOA, GPIO15},
+			{GPIOA, GPIO8},
+			{GPIOC, GPIO11},
+			{GPIOC, GPIO12},
+			{GPIOA, GPIO10}
+		  }
 {
-	// Enable peripherials
+	// Enable peripherials clocks
 	// Timer
 	rcc_periph_clock_enable(RCC_TIM1);
 
@@ -200,3 +193,32 @@ void motor_controler::set_m2_duty(float percent)
 		timer_set_oc_value(TIM1, TIM_OC3, (uint32_t)((float)pwm_ticks * percent));
 	}
 }
+
+
+motor_controler::~motor_controler()
+{
+	delete single_;
+	single_ = NULL;
+}
+
+// Get the only instance of motor controller
+motor_controler* motor_controler::get_instance()
+{
+	if(single_ == NULL)
+	{
+		single_ = new motor_controler();
+	}
+
+	return single_;
+}
+
+void motor_controler::stop()
+{
+	set_m1_dir(FREE_SPIN_H);
+	set_m2_dir(FREE_SPIN_H);
+	set_m1_duty(0);
+	set_m2_duty(0);
+}
+
+// Static vars
+motor_controler* motor_controler::single_ = NULL;

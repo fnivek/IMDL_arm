@@ -7,8 +7,6 @@ board::board():
 	sonars_(NULL),
 	system_millis_(0)
 {
-	sonars_ = hc_sr04_array::get_instance();
-
 	/* Initilize the clock to: 
 		.pllm = 25,
 		.plln = 240,
@@ -27,15 +25,23 @@ board::board():
 
 	systick_setup_();
 
-	usb_ = usb::get_instance();
+	// Setup sonars
+	sonars_ = hc_sr04_array::get_instance();
 
+	// Setup usb
+	usb_ = usb::get_instance();
 	usb_->setReadCallback(read_cb_);
+
+	// Setup motors
+	motors_ = motor_controler::get_instance();
+	motors_->stop();
 
 	// Setup status LEDs
 	rcc_periph_clock_enable(RCC_GPIOD);		// TODO: case statment to activate correct gpio clock
 	gpio_mode_setup(heartbeat_led_.port_, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
 		 heartbeat_led_.number_ | orange_led_.number_ | red_led_.number_ | blue_led_.number_);
 
+	// Set initial status
 	setStatus_(OK);
 }
 

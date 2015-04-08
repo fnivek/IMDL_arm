@@ -21,9 +21,12 @@
  //My includes
  #include "helpers.h"
 
+// TODO: find where this actually comes from
+#define NULL 0
+
 class motor_controler
 {
-private:
+private:	// Enums
 	enum pin_number
 	{
 		M1_IN1,
@@ -35,7 +38,7 @@ private:
 		NUMBER_OF_PINS
 	};
 
-public:
+public:		// Enums
 	enum direction
 	{
 		FREE_SPIN_H,
@@ -44,25 +47,36 @@ public:
 		REVERSE
 	};
 
-private:
+private:	// Vars
 	pin pins_[NUMBER_OF_PINS];
 
 	// Set to 20 KHz
 	// ticks = (120MHz / 2) / 20 KHz  
-	const uint32_t pwm_ticks = 3000;		
+	const uint32_t pwm_ticks = 3000;	
 
-public:
-	motor_controler(pin m1_in1, pin m1_in2, pin m1_pwm,
-					pin m2_in1, pin m2_in2, pin m2_pwm);
+	static motor_controler* single_;
 
-	void init();
+private:	// Functions
+	motor_controler();
 
+	// Do not implement!
+	motor_controler(motor_controler const&){};
+	void operator=(motor_controler const&){};
+
+	~motor_controler();
+
+public:		// Functions
+	// Get the only instance of motor controller
+	static motor_controler* get_instance();
+	
 	void set_m1_dir(direction dir);
 	void set_m2_dir(direction dir);
 
 	// Percent is 0 to 1
 	void set_m1_duty(float percent);
 	void set_m2_duty(float percent);
+
+	void stop();
 
 
 };
