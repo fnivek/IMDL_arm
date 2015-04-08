@@ -182,17 +182,46 @@ void read_cb_(char* buf, uint16_t len)
 	char* right = strstr(buf, board::right_duty_id);
 
 	board* bd = board::get_instance();
+
 	// Found a match to the left
 	if(left != NULL)
 	{
 		// Read in the value 
-		float* duty = reinterpret_cast<float*>(&left[9]);
+		// Not sure why I need a intermidiate but I do...
+		uint32_t duty_temp = (*(reinterpret_cast<uint32_t*>(&left[9])));
+		float duty = *(reinterpret_cast<float*>(&duty_temp));
+
+		// Set wheel dir
+		if(duty > 0)
+		{
+			bd->motors_->setLeftDir(motor_controler::FORWARD);
+			bd->motors_->setLeftDuty(duty * -1);
+		}
+		else if (duty < 0)
+		{
+			bd->motors_->setLeftDir(motor_controler::REVERSE);
+			bd->motors_->setLeftDuty(duty);
+		}
+
 	}
 	else if(right != NULL)
 	{
-		float* duty = reinterpret_cast<float*>(&right[10]);
-	}
+		// Read in the value 
+		uint32_t duty_temp = (*(reinterpret_cast<uint32_t*>(&right[10])));
+		float duty = *(reinterpret_cast<float*>(&duty_temp));
 
+		// Set wheel dir
+		if(duty > 0)
+		{
+			bd->motors_->setRightDir(motor_controler::FORWARD);
+			bd->motors_->setRightDuty(duty * -1);
+		}
+		else if (duty < 0)
+		{
+			bd->motors_->setRightDir(motor_controler::REVERSE);
+			bd->motors_->setRightDuty(duty);
+		}
+	}
 }
 
 // 1 Hz update function

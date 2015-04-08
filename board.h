@@ -91,6 +91,9 @@ public:		// Functions
 	//		Contains sonar update
 	void update1000hz_();
 
+public:		// Friend functions
+	friend void read_cb_(char* buf, uint16_t len);
+
 };
 
 // None class functions
