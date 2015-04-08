@@ -205,14 +205,14 @@ void board::update10hz_()
 	sonar_ticks ticks = sonars_->getSonarTicks();
 
 	// Fill buffers of data
-	char* test = reinterpret_cast<char*>(&ticks);
+	char* range_data = reinterpret_cast<char*>(&ticks);
 
 	// Ugh this is nasty...
 	char buf[] = { 's', 'o', 'n', 'a', 'r', '_', 'd', 'a', 't', 'a', 
-		test[0], 			test[1], 		test[2], 		test[3],
-		test[4], 			test[5], 		test[6], 		test[7],
-		test[8], 			test[9], 		test[10], 		test[11],
-		test[12], 			test[13], 		test[14], 		test[15]
+		range_data[0], 			range_data[1], 		range_data[2], 		range_data[3],
+		range_data[4], 			range_data[5], 		range_data[6], 		range_data[7],
+		range_data[8], 			range_data[9], 		range_data[10], 	range_data[11],
+		range_data[12], 		range_data[13], 	range_data[14], 	range_data[15]
 				 };
 	
 	usb_->write(buf, sizeof(buf));
