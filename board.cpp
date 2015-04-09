@@ -202,6 +202,10 @@ void read_cb_(char* buf, uint16_t len)
 			bd->motors_->setLeftDir(motor_controler::REVERSE);
 			bd->motors_->setLeftDuty(duty * -1);
 		}
+		else
+		{
+			bd->motors_->setLeftDuty(0);
+		}
 
 	}
 	else if(right != NULL)
@@ -220,6 +224,10 @@ void read_cb_(char* buf, uint16_t len)
 		{
 			bd->motors_->setRightDir(motor_controler::REVERSE);
 			bd->motors_->setRightDuty(duty * -1);
+		}
+		else
+		{
+			bd->motors_->setRightDuty(0);
 		}
 	}
 }
