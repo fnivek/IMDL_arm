@@ -22,7 +22,7 @@ public:		// Enumerators
 		ERROR,
 		IDK_2,
 		IDK_3,
-		IDK_4,
+		MISSED_HEARTBEAT,
 		IDK_5,
 		IDK_6,
 	};
@@ -35,6 +35,9 @@ private:	// Vars
 	hc_sr04_array* sonars_;
 
 	motor_controler* motors_;
+
+	bool recieved_comm_heartbeat_;
+	bool missed_heartbeat_;
 
 private:	// Functions
 	/* Called when systick fires */
@@ -60,8 +63,9 @@ public:		//Vars
 	volatile uint32_t system_millis_;
 
 	// Identifiers
-	static const char left_duty_id[];
-	static const char right_duty_id[];
+	static const char left_duty_id_[];
+	static const char right_duty_id_[];
+	static const char heartbeat_id_[];
 
 public:		// Functions
 	// Get the only instance of board
@@ -79,8 +83,12 @@ public:		// Functions
 	//		Contains USB poll
 	void hardwareUpdate_();
 
+	// Update at 0.5 Hz
+	//		Contains communication heat beat
+	void updateHalfHz_();
+
 	// 1 Hz update function
-	//		Contains heart beat
+	//		Contains board heart beat
 	void update1hz_();
 
 	// 10 Hz update function
@@ -93,6 +101,7 @@ public:		// Functions
 
 public:		// Friend functions
 	friend void read_cb_(char* buf, uint16_t len);
+	friend void sys_tick_handler(void);
 
 };
 

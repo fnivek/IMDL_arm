@@ -5,7 +5,8 @@ board::board():
 	heartbeat_led_(GPIOD, GPIO12), orange_led_(GPIOD, GPIO13), 
 	red_led_(GPIOD, GPIO14), blue_led_(GPIOD, GPIO15),
 	sonars_(NULL),
-	system_millis_(0)
+	system_millis_(0),
+	recieved_comm_heartbeat_(false)
 {
 	/* Initilize the clock to: 
 		.pllm = 25,
@@ -114,7 +115,7 @@ void board::setStatus_(status_ status)
 		gpio_clear(heartbeat_led_.port_, blue_led_.number_);
 		break;
 
-	case IDK_4:
+	case MISSED_HEARTBEAT:
 		gpio_set(heartbeat_led_.port_, blue_led_.number_);
 		gpio_clear(heartbeat_led_.port_, red_led_.number_ | orange_led_.number_);
 		break;
@@ -164,6 +165,12 @@ void sys_tick_handler(void)
 	{
 		bd->update1hz_();
 	}
+
+	// 0.5 Hz updates
+	if(!(bd->system_millis_ % 2000))
+	{
+		bd->updateHalfHz_();
+	}
 }
 
 void read_cb_(char* buf, uint16_t len)
@@ -178,10 +185,17 @@ void read_cb_(char* buf, uint16_t len)
 	buf[len] = '\0';
 
 	// Search for left and right
-	char* left = strstr(buf, board::left_duty_id);
-	char* right = strstr(buf, board::right_duty_id);
+	char* left = strstr(buf, board::left_duty_id_);
+	char* right = strstr(buf, board::right_duty_id_);
+	char* heartbeat = strstr(buf, board::heartbeat_id_);
 
 	board* bd = board::get_instance();
+
+	// Reset heart beat timer if we have any message
+	if(right != NULL || left != NULL || heartbeat != NULL)
+	{
+		bd->recieved_comm_heartbeat_ = true;
+	}
 
 	// Found a match to the left
 	if(left != NULL)
@@ -208,7 +222,9 @@ void read_cb_(char* buf, uint16_t len)
 		}
 
 	}
-	else if(right != NULL)
+
+	// Found a match to right
+	if(right != NULL)
 	{
 		// Read in the value 
 		uint32_t duty_temp = (*(reinterpret_cast<uint32_t*>(&right[10])));
@@ -230,6 +246,25 @@ void read_cb_(char* buf, uint16_t len)
 			bd->motors_->setRightDuty(0);
 		}
 	}
+}
+
+void board::updateHalfHz_()
+{
+	if(!recieved_comm_heartbeat_)
+	{
+		// Stop the wheels now!
+		motors_->setRightDuty(0);
+		motors_->setLeftDuty(0);
+
+		setStatus_(board::MISSED_HEARTBEAT);
+	}
+	else
+	{
+		setStatus_(board::OK);
+	}
+
+	recieved_comm_heartbeat_ = false;
+
 }
 
 // 1 Hz update function
@@ -270,5 +305,6 @@ void board::update1000hz_()
 
 // Static variable inits
 board* board::single_ = NULL;
-const char board::left_duty_id[] = "left_duty";
-const char board::right_duty_id[] = "right_duty";
+const char board::left_duty_id_[] = "left_duty";
+const char board::right_duty_id_[] = "right_duty";
+const char board::heartbeat_id_[] = "beat";
