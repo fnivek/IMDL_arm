@@ -152,6 +152,12 @@ void sys_tick_handler(void)
 	// 1000 Hz updates
 	bd->update1000hz_();
 
+	// 20 Hz updates
+	if(!(bd->system_millis_ % 50))
+	{
+		bd->update20hz_();
+	}
+
 	// 100 Hz updates
 
 	// 10 Hz updates
@@ -159,6 +165,7 @@ void sys_tick_handler(void)
 	{
 		bd->update10hz_();
 	}
+
 
 	// 1 Hz updates
 	if(!(bd->system_millis_ % 1000))
@@ -292,28 +299,38 @@ void board::update10hz_()
 		range_data[12], 		range_data[13], 	range_data[14], 	range_data[15]
 				 };
 	
-	uint16_t bytes_writen = usb_->write(buf, sizeof(buf));
+	uint16_t bytes_writen = 0;
+	uint8_t trys = 100;
+	do 
+	{
+		bytes_writen = usb_->write(buf, sizeof(buf));
+		--trys;
+	} while(bytes_writen == 0 && trys != 0);
 
+}
+
+// 20 Hz update function
+//		Contains encoder out
+void board::update20hz_()
+{
 	// Report motor pos
 	motors_->update_();
 
-	if( bytes_writen != 0)
+	uint16_t left = motors_->getLeftPos_();
+	uint16_t right = motors_->getRightPos_();
+	char* left_char = reinterpret_cast<char*>(&left);
+	char* right_char = reinterpret_cast<char*>(&right);
+	char buf[] = { 'm', 'o', 't', 'o', 'r', '_', 'p', 'o', 's',
+						left_char[0], left_char[1],
+						right_char[0], right_char[1]
+					};
+	uint16_t bytes_writen = 0;
+	uint8_t trys = 100;
+	do 
 	{
-		uint16_t left = motors_->getLeftPos_();
-		uint16_t right = motors_->getRightPos_();
-		char* left_char = reinterpret_cast<char*>(&left);
-		char* right_char = reinterpret_cast<char*>(&right);
-		char bufl[] = { 'm', 'o', 't', 'o', 'r', '_', 'p', 'o', 's',
-							left_char[0], left_char[1],
-							right_char[0], right_char[1]
-						};
-		uint8_t trys = 100;
-		do 
-		{
-			bytes_writen = usb_->write(bufl, sizeof(bufl));
-			--trys;
-		} while(bytes_writen == 0 && trys != 0);
-	}
+		bytes_writen = usb_->write(buf, sizeof(buf));
+		--trys;
+	} while(bytes_writen == 0 && trys != 0);
 
 }
 

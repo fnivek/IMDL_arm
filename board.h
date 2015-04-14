@@ -92,8 +92,12 @@ public:		// Functions
 	void update1hz_();
 
 	// 10 Hz update function
-	//		Contains sonar out, and motor pos out
+	//		Contains sonar out
 	void update10hz_();
+
+	// 20 Hz update function
+	//		Contains encoder out
+	void update20hz_();
 
 	// 1000 Hz update function
 	//		Contains sonar update
