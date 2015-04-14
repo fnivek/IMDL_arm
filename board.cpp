@@ -35,7 +35,7 @@ board::board():
 
 	// Setup motors
 	motors_ = motor_controler::get_instance();
-	motors_->stop();
+	motors_->stop_();
 
 	// Setup status LEDs
 	rcc_periph_clock_enable(RCC_GPIOD);		// TODO: case statment to activate correct gpio clock
@@ -208,17 +208,17 @@ void read_cb_(char* buf, uint16_t len)
 		// Set wheel dir
 		if(duty > 0)
 		{
-			bd->motors_->setLeftDir(motor_controler::FORWARD);
-			bd->motors_->setLeftDuty(duty);
+			bd->motors_->setLeftDir_(motor_controler::FORWARD);
+			bd->motors_->setLeftDuty_(duty);
 		}
 		else if (duty < 0)
 		{
-			bd->motors_->setLeftDir(motor_controler::REVERSE);
-			bd->motors_->setLeftDuty(duty * -1);
+			bd->motors_->setLeftDir_(motor_controler::REVERSE);
+			bd->motors_->setLeftDuty_(duty * -1);
 		}
 		else
 		{
-			bd->motors_->setLeftDuty(0);
+			bd->motors_->setLeftDuty_(0);
 		}
 
 	}
@@ -233,17 +233,17 @@ void read_cb_(char* buf, uint16_t len)
 		// Set wheel dir
 		if(duty > 0)
 		{
-			bd->motors_->setRightDir(motor_controler::FORWARD);
-			bd->motors_->setRightDuty(duty);
+			bd->motors_->setRightDir_(motor_controler::FORWARD);
+			bd->motors_->setRightDuty_(duty);
 		}
 		else if (duty < 0)
 		{
-			bd->motors_->setRightDir(motor_controler::REVERSE);
-			bd->motors_->setRightDuty(duty * -1);
+			bd->motors_->setRightDir_(motor_controler::REVERSE);
+			bd->motors_->setRightDuty_(duty * -1);
 		}
 		else
 		{
-			bd->motors_->setRightDuty(0);
+			bd->motors_->setRightDuty_(0);
 		}
 	}
 }
@@ -253,8 +253,8 @@ void board::updateHalfHz_()
 	if(!recieved_comm_heartbeat_)
 	{
 		// Stop the wheels now!
-		motors_->setRightDuty(0);
-		motors_->setLeftDuty(0);
+		motors_->setRightDuty_(0);
+		motors_->setLeftDuty_(0);
 
 		setStatus_(board::MISSED_HEARTBEAT);
 	}
@@ -278,8 +278,6 @@ void board::update1hz_()
 //		Contains sonar out
 void board::update10hz_()
 {
-	// TODO concatenate before sending out
-
 	// Report sonar readings
 	sonar_ticks ticks = sonars_->getSonarTicks();
 
@@ -294,7 +292,28 @@ void board::update10hz_()
 		range_data[12], 		range_data[13], 	range_data[14], 	range_data[15]
 				 };
 	
-	usb_->write(buf, sizeof(buf));
+	uint16_t bytes_writen = usb_->write(buf, sizeof(buf));
+
+	// Report motor pos
+	motors_->update_();
+
+	if( bytes_writen != 0)
+	{
+		uint16_t left = motors_->getLeftPos_();
+		uint16_t right = motors_->getRightPos_();
+		char* left_char = reinterpret_cast<char*>(&left);
+		char* right_char = reinterpret_cast<char*>(&right);
+		char bufl[] = { 'm', 'o', 't', 'o', 'r', '_', 'p', 'o', 's',
+							left_char[0], left_char[1],
+							right_char[0], right_char[1]
+						};
+		uint8_t trys = 100;
+		do 
+		{
+			bytes_writen = usb_->write(bufl, sizeof(bufl));
+			--trys;
+		} while(bytes_writen == 0 && trys != 0);
+	}
 
 }
 

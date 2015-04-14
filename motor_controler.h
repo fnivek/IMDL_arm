@@ -10,6 +10,8 @@
  *
  */
 
+ // TODO figure out how to get encoders working
+
  #ifndef MOTOR_CONTROLER_H
  #define MOTOR_CONTROLER_H
 
@@ -56,6 +58,8 @@ private:	// Vars
 
 	static motor_controler* single_;
 
+	uint16_t left_pos_, right_pos_;
+
 private:	// Functions
 	motor_controler();
 
@@ -69,14 +73,20 @@ public:		// Functions
 	// Get the only instance of motor controller
 	static motor_controler* get_instance();
 
-	void setLeftDir(direction dir);
-	void setRightDir(direction dir);
+	void setLeftDir_(direction dir);
+	void setRightDir_(direction dir);
 
 	// Percent is 0 to 1
-	void setLeftDuty(float percent);
-	void setRightDuty(float percent);
+	void setLeftDuty_(float percent);
+	void setRightDuty_(float percent);
 
-	void stop();
+	// Update the PD controlers
+	void update_();
+
+	uint16_t getLeftPos_();
+	uint16_t getRightPos_();
+
+	void stop_();
 
 
 };

@@ -11,12 +11,15 @@
  *		PC11				-->				Motor 2 in 1 			Direction control
  *		PC12				-->				Motor 2 in 2			Direction control
  *		PA10				-->				Motor 2 PWM				Motor speed control (PWM)
+ *		PB4					<--				Left Encoder A 			Timer 3 input CH1
+ *		PB5					<--				Left Encoder B 			Timer 3 input CH2
+ *		PB6					<--				Right Encoder A 		Timer 4 input CH1
+ *		PB7					<--				Right Encoder B 		Timer 4 input CH2
+ *		
  *
  *		PA11				<-->			USB DM					USB data -
  *		PA12				<-->			USB DP					USB data +
  *		PA9					 pwr 			VBUS					USB VBUS
- *
- *		PC?					<-->			ping))) Signal			distance measurment
  *
  *		PA13				?				Programer				Programing don't mess with this!
  *		PA14				?				Programer				Programing don't mess with this!
@@ -31,14 +34,16 @@
  *		PA1 				-->				B sonar Trig.			Trigger for back sonar
  *		PA2 				-->				FR sonar Trig.			Trigger for Front right sonar
  *		PA3 				-->				FL sonar Trig.			Trigger for Front left sonar
- * 
+ *
  */
 
 /*
  *	Timer			who				why					config
  * --------------------------------------------------------------------
  * TIM1			   M1, M2		PWM generation		20KHz, DIV 1, OC
- * TIM2			  HC_SR04s 		Input capture						
+ * TIM2			  HC_SR04s 		Timer capture
+ * TIM3			  Encoder		Measure left wheel velocity	
+ * TIM4			  Encoder		Measure right wheel velocity						
  */
 
 // Library includes
